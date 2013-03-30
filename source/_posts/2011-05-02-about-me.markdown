@@ -1,0 +1,26 @@
+---
+comments: false
+date: 2011-05-02 16:33:15
+layout: post
+slug: about-me
+title: About me
+wordpress_id: 29
+categories:
+- About me
+tags:
+- About
+- Contact me
+---
+
+Welcome!
+
+My name is Alexander Manekovskiy. I'm .NET developer currently working in [BIT](http://bit.biz.ua), where my main duties are to develop and maintain couple of .NET based solutions and sometimes represent company on regional IT conferences and meetings. Also I'm working as a trainer at [ITStep](http://itstep.org).
+
+I work primarily on the Microsoft .NET technologies stack and my experience is mainly connected with different intranet web-based applications which were tightly integrated with various 3rd party solutions and products such as Microsoft Office, Adobe InDesign, different Storefronts, CRM systems, etc.
+
+I like trying new things and I'm always open to new interesting ideas and concepts. And in this blog I'm going to write about practices, tools and ideas that in my mind could be useful or just interesting for .NET developer. The second idea of running this blog is to have an online 24/7 memory stick.
+
+I'm always open to cooperation and you can freely contact me by email or skype:
+
+**Email**: manekovskiy[at]gmail.com
+**Skype**: alexander.manekovskiy
