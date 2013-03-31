@@ -1,0 +1,710 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How to Implement Configurable Dynamic Data Filters in ASP.NET 4.5 - Alexander Manekovskiy</title>
+  <meta name="author" content="Alexander Manekovskiy">
+
+  
+  <meta name="description" content="Every time, when we speaking about data driven web applications there is a task of providing data filtering feature or configurable filters with &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://manekovskiy.github.com//how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5/">
+  <link href="/octopress-blog/favicon.png" rel="icon">
+  <link href="/octopress-blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/octopress-blog/atom.xml" rel="alternate" title="Alexander Manekovskiy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  <script src="/octopress-blog/javascripts/modernizr-2.0.js"></script>
+  <script src="/octopress-blog/javascripts/ender.js"></script>
+  <script src="/octopress-blog/javascripts/octopress.js" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28104381-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/octopress-blog/">Alexander Manekovskiy</a></h1>
+  
+    <h2>Automating Automation</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/octopress-blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:manekovskiy.github.com/" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/octopress-blog/">Blog</a></li>
+  <li><a href="/octopress-blog/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How to Implement Configurable Dynamic Data Filters in ASP.NET 4.5</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-01T20:12:00+03:00" pubdate data-updated="true">May 1<span>st</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Every time, when we speaking about data driven web applications there is a task of providing data filtering feature or configurable filters with ability to save the search criteria individually for each user. The most convenient filtering experience I have ever encountered were the bug tracking systems. Fast and simple. To get the idea of what I&#8217;m talking about just look at <a href="http://www.redmine.org/projects/redmine/issues">Redmine Issues page</a>.
+Can we implement something similar with pure ASP.NET, particularly with <a href="http://msdn.microsoft.com/en-us/library/ee845452.aspx"><em>ASP.NET Dynamic Data</em></a>? Why Dynamic Data? Because of its focus on metadata which is set by attributes from <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.aspx">DataAnnotations namespace</a> and convention over configuration approach for building data driven applications. Its simple and convenient, and does not take much efforts to extend it.</p>
+
+<p>For filtering Dynamic Data offers us <a href="http://msdn.microsoft.com/en-us/library/ee377606.aspx#filter_templates"><em>Filter Templates</em></a> with <a href="http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.filterrepeater.aspx"><em>FilterRepeater</em></a> control. To get the idea of how Dynamic Data Filter Templates are working I highly recommend reading a great post of <a href="http://www.olegsych.com/">Oleg Sych</a> <a href="http://www.olegsych.com/2010/07/understanding-aspnet-dynamic-data-filter-templates/">&#8220;Understanding ASP.NET Dynamic Data: Filter Templates&#8221;</a>.</p>
+
+<p>Until .NET 4.5 there were no extension points where we could retake control over filter templates creation. And surprisingly, I found that interface <a href="http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.ifilterexpressionprovider(v=vs.110"><em>IFilterExpressionProvider</em></a>.aspx) became public in .NET 4.5. So now we can extend Dynamic Data filtering mechanism.</p>
+
+<h2>ASP.NET Dynamic Data QueryableFilterRepeater</h2>
+
+<p>For the jump start lets remind how List PageTemplate in Dynamic Data looks like:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='aspx-cs'><span class='line'><span class="nt">&lt;asp:QueryableFilterRepeater</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">ID=</span><span class="s">&quot;FilterRepeater&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;ItemTemplate&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;asp:Label</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">Text=</span><span class="s">&#39;</span><span class="nt">&lt;%#</span> <span class="n">Eval</span><span class="p">(</span><span class="s">&quot;DisplayName&quot;</span><span class="p">)</span> <span class="nt">%&gt;</span>&#39; OnPreRender=&quot;Label_PreRender&quot; /&gt;
+</span><span class='line'>      <span class="nt">&lt;asp:DynamicFilter</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">ID=</span><span class="s">&quot;DynamicFilter&quot;</span> <span class="na">OnFilterChanged=</span><span class="s">&quot;DynamicFilter_FilterChanged&quot;</span> <span class="nt">/&gt;&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/ItemTemplate&gt;</span>
+</span><span class='line'><span class="nt">&lt;/asp:QueryableFilterRepeater&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;asp:GridView</span> <span class="na">ID=</span><span class="s">&quot;GridView1&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">DataSourceID=</span><span class="s">&quot;GridDataSource&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;%</span><span class="p">--</span> <span class="n">Contents</span> <span class="n">and</span> <span class="n">styling</span> <span class="n">omited</span> <span class="k">for</span> <span class="n">brevity</span> <span class="p">--</span><span class="nt">%&gt;</span>
+</span><span class='line'><span class="nt">&lt;/asp:GridView&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;asp:EntityDataSource</span> <span class="na">ID=</span><span class="s">&quot;GridDataSource&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">EnableDelete=</span><span class="s">&quot;true&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;asp:QueryExtender</span> <span class="na">TargetControlID=</span><span class="s">&quot;GridDataSource&quot;</span> <span class="na">ID=</span><span class="s">&quot;GridQueryExtender&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;asp:DynamicFilterExpression</span> <span class="na">ControlID=</span><span class="s">&quot;FilterRepeater&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/asp:QueryExtender&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The purpose of <a href="http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.queryablefilterrepeater.aspx"><em>QueryableFilterRepeater</em></a> is to generate set of filters for a set of columns. It should contain <a href="http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.dynamicfilter.aspx"><em>DynamicFilter</em></a> control which is the actual placeholder for a <em>FilterTemplate</em> control. <em>QueryableFilterRepeater</em> implements <em>IFilterExpressionProvider</em> interface that is supported by <a href="http://msdn.microsoft.com/en-us/library/system.web.ui.webcontrols.queryextender.aspx"><em>QueryExtender</em></a> via <a href="http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.dynamicfilterexpression.aspx"><em>DynamicFilterExpression</em></a> control.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">interface</span> <span class="n">IFilterExpressionProvider</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">IQueryable</span> <span class="nf">GetQueryable</span><span class="p">(</span><span class="n">IQueryable</span> <span class="n">source</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">void</span> <span class="nf">Initialize</span><span class="p">(</span><span class="n">IQueryableDataSource</span> <span class="n">dataSource</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The complete call sequence is represented on diagram below.</p>
+
+<p><img class="center" src="/octopress-blog/images/posts/dynamic-data-queryextender-interactions.png" title="Sequence diagram showing QueryExtender interaction with Dynamic Data controls" alt="Sequence diagram showing QueryExtender interaction with Dynamic Data controls"></p>
+
+<h2>Building Configurable Alternative to QueryableFilterRepeater</h2>
+
+<p>As <em>QueryableFilterRepeater</em> is creating filters automatically, the only thing we can do is to hide <em>DynamicFilter</em> on client- or on server-side. To my mind it is not good idea, so a custom implementation of <em>IFilterExpressionProvider</em> is needed. It should support the same item template model as in <em>QueryableFilterRepeater</em> but with ability to add/remove filter controls between postbacks.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="na">[ParseChildren(true)]</span>
+</span><span class='line'><span class="na">[PersistChildren(false)]</span>
+</span><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">DynamicFilterRepeater</span> <span class="p">:</span> <span class="n">Control</span><span class="p">,</span> <span class="n">IFilterExpressionProvider</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">private</span> <span class="k">readonly</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">IFilterExpressionProvider</span><span class="p">&gt;</span> <span class="n">filters</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">IFilterExpressionProvider</span><span class="p">&gt;();</span>
+</span><span class='line'>  <span class="k">private</span> <span class="n">IQueryableDataSource</span> <span class="n">dataSource</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">IQueryable</span> <span class="n">IFilterExpressionProvider</span><span class="p">.</span><span class="n">GetQueryable</span><span class="p">(</span><span class="n">IQueryable</span> <span class="n">source</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">filters</span><span class="p">.</span><span class="n">Aggregate</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">filter</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">filter</span><span class="p">.</span><span class="n">GetQueryable</span><span class="p">(</span><span class="n">current</span><span class="p">));</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">void</span> <span class="n">IFilterExpressionProvider</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">IQueryableDataSource</span> <span class="n">queryableDataSource</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="n">Contract</span><span class="p">.</span><span class="n">Assert</span><span class="p">(</span><span class="n">queryableDataSource</span> <span class="k">is</span> <span class="n">IDynamicDataSource</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">Contract</span><span class="p">.</span><span class="n">Assert</span><span class="p">(</span><span class="n">queryableDataSource</span> <span class="p">!=</span> <span class="k">null</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">ItemTemplate</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">dataSource</span> <span class="p">=</span> <span class="n">queryableDataSource</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">Page</span><span class="p">.</span><span class="n">InitComplete</span> <span class="p">+=</span> <span class="n">InitComplete</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">Page</span><span class="p">.</span><span class="n">LoadComplete</span> <span class="p">+=</span> <span class="n">LoadCompeted</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The only disappointing thing is the content generation of <em>DynamicFilter</em> which is done on <em>Page.InitComplete</em> event.</p>
+
+<blockquote><p>Oleg Sych tried to change the situation, but <a href="https://connect.microsoft.com/VisualStudio/feedback/details/588383/dont-use-page-initcomplete-in-queryablefilterrepeater-and-dynamicfilter-controls">his suggestion</a> is closed now and seems nothing will be changed. I just reposted his suggestion on <a href="http://visualstudio.uservoice.com/forums/121579-visual-studio/suggestions/2763785-don-t-use-page-initcomplete-in-queryablefilterrepe">visualstudio.uservoice.com</a> in hope that this time, we will succeed.</p></blockquote>
+
+<p>To make things working, <em>DynamicFilter</em> control should initialize itself via <em>EnsureInit</em> method which is generally speaking responsible for <em>FitlerTempate</em> lookup and loading. In other words to force the <em>DynamicFilter</em> to generate its content this method should be called. The only way to do it is to use reflection, since <em>EnsureInit</em> is private.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">static</span> <span class="k">readonly</span> <span class="n">MethodInfo</span> <span class="n">DynamicFilterEnsureInit</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="nf">DynamicFilterRepeater</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">DynamicFilterEnsureInit</span> <span class="p">=</span> <span class="k">typeof</span> <span class="p">(</span><span class="n">DynamicFilter</span><span class="p">).</span><span class="n">GetMethod</span><span class="p">(</span><span class="s">&quot;EnsureInit&quot;</span><span class="p">,</span> <span class="n">BindingFlags</span><span class="p">.</span><span class="n">NonPublic</span> <span class="p">|</span> <span class="n">BindingFlags</span><span class="p">.</span><span class="n">Instance</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">AddFilterControls</span><span class="p">(</span><span class="n">IEnumerable</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="n">columnNames</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">foreach</span> <span class="p">(</span><span class="n">MetaColumn</span> <span class="n">column</span> <span class="k">in</span> <span class="n">GetFilteredMetaColumns</span><span class="p">(</span><span class="n">columnNames</span><span class="p">))</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="n">DynamicFilterRepeaterItem</span> <span class="n">item</span> <span class="p">=</span> <span class="k">new</span> <span class="n">DynamicFilterRepeaterItem</span> <span class="p">{</span> <span class="n">DataItemIndex</span> <span class="p">=</span> <span class="n">itemIndex</span><span class="p">,</span> <span class="n">DisplayIndex</span> <span class="p">=</span> <span class="n">itemIndex</span> <span class="p">};</span>
+</span><span class='line'>      <span class="n">itemIndex</span><span class="p">++;</span>
+</span><span class='line'>      <span class="n">ItemTemplate</span><span class="p">.</span><span class="n">InstantiateIn</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">Controls</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">DynamicFilter</span> <span class="n">filter</span> <span class="p">=</span> <span class="n">item</span><span class="p">.</span><span class="n">FindControl</span><span class="p">(</span><span class="n">DynamicFilterContainerId</span><span class="p">)</span> <span class="k">as</span> <span class="n">DynamicFilter</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">filter</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>          <span class="k">throw</span> <span class="k">new</span> <span class="nf">InvalidOperationException</span><span class="p">(</span><span class="n">String</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="n">CultureInfo</span><span class="p">.</span><span class="n">CurrentCulture</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;FilterRepeater &#39;{0}&#39; does not contain a control of type &#39;{1}&#39; with ID &#39;{2}&#39; in its item templates&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="n">ID</span><span class="p">,</span>
+</span><span class='line'>              <span class="k">typeof</span><span class="p">(</span><span class="n">QueryableFilterUserControl</span><span class="p">).</span><span class="n">FullName</span><span class="p">,</span>
+</span><span class='line'>              <span class="n">DynamicFilterContainerId</span><span class="p">));</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="n">filter</span><span class="p">.</span><span class="n">DataField</span> <span class="p">=</span> <span class="n">column</span><span class="p">.</span><span class="n">Name</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">item</span><span class="p">.</span><span class="n">DataItem</span> <span class="p">=</span> <span class="n">column</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">item</span><span class="p">.</span><span class="n">DataBind</span><span class="p">();</span>
+</span><span class='line'>      <span class="n">item</span><span class="p">.</span><span class="n">DataItem</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">filters</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">filter</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">filters</span><span class="p">.</span><span class="n">ForEach</span><span class="p">(</span><span class="n">f</span> <span class="p">=&gt;</span> <span class="n">DynamicFilterEnsureInit</span><span class="p">.</span><span class="n">Invoke</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="k">new</span> <span class="kt">object</span><span class="p">[]</span> <span class="p">{</span> <span class="n">dataSource</span> <span class="p">}));</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="n">IEnumerable</span> <span class="nf">GetFilteredMetaColumns</span><span class="p">(</span><span class="n">IEnumerable</span> <span class="n">filterColumns</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">MetaTable</span><span class="p">.</span><span class="n">GetFilteredColumns</span><span class="p">()</span>
+</span><span class='line'>      <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">column</span> <span class="p">=&gt;</span> <span class="n">filterColumns</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">column</span><span class="p">.</span><span class="n">Name</span><span class="p">))</span>
+</span><span class='line'>      <span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">column</span> <span class="p">=&gt;</span> <span class="n">column</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="k">class</span> <span class="nc">DynamicFilterRepeaterItem</span> <span class="p">:</span> <span class="n">Control</span><span class="p">,</span> <span class="n">IDataItemContainer</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="kt">object</span> <span class="n">DataItem</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">internal</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">public</span> <span class="kt">int</span> <span class="n">DataItemIndex</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">internal</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">public</span> <span class="kt">int</span> <span class="n">DisplayIndex</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">internal</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Another problem that should be solved - filter controls instantiation. As it was pointed before, all things in Dynamic Data that are connected with filtering are initialized at <em>Page.InitCompleted</em> event. And if you want your dynamic filters to work, they should be instantiated before or at <em>InitComplete</em> event. So far I see only one way to solve this - method <em>AddFilterControls</em> should be called twice, first time to instantiate filter controls that were present on the page (<em>InitComplete</em> event) and second time for newly added columns that are to be filtered (<em>LoadComplete</em> event).</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">InitComplete</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">initComleted</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">addedOnInitCompleteFilters</span><span class="p">.</span><span class="n">AddRange</span><span class="p">(</span><span class="n">FilterColumns</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">AddFilterControls</span><span class="p">(</span><span class="n">addedOnInitCompleteFilters</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">initComleted</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">LoadCompeted</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">eventArgs</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">loadCompleted</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">AddFilterControls</span><span class="p">(</span><span class="n">FilterColumns</span><span class="p">.</span><span class="n">Except</span><span class="p">(</span><span class="n">addedOnInitCompleteFilters</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">loadCompleted</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Encapsulating DynamicFilterRepeater</h2>
+
+<p><em>DynamicFilterRepeater</em> is only a part of more general component though. Everything it does is rendering of filter controls and providing of filter expression. But to start working, <em>DynamicFilterRepeater</em> needs two things - <em>IQueryableDataSource </em>and list of columns to be filtered. Since filtering across the website should be consistent and unified it would be good to encapsulate <em>DynamicFilterRepeater</em> in <em>UserControl</em> which will serve as HTML layout and a glue between page (with <em>IQueryableDataSource</em>, <em>QueryExtender</em> and data source bound control) and <em>DynamicFilterRepeater</em>. In my example I chose <em>GridView</em>.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='aspx-cs'><span class='line'><span class="nt">&lt;asp:Label</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">Text=</span><span class="s">&quot;Add fitler&quot;</span> <span class="na">AssociatedControlID=</span><span class="s">&quot;ddlFilterableColumns&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;asp:DropDownList</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">ID=</span><span class="s">&quot;ddlFilterableColumns&quot;</span> <span class="na">CssClass=</span><span class="s">&quot;ui-widget&quot;</span>
+</span><span class='line'>  <span class="na">AutoPostBack=</span><span class="s">&quot;True&quot;</span>
+</span><span class='line'>  <span class="na">ItemType=</span><span class="s">&quot;</span><span class="nt">&lt;%</span><span class="err">$</span> <span class="n">Code</span><span class="p">:</span> <span class="k">typeof</span><span class="p">(</span><span class="n">KeyValuePair</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="kt">string</span><span class="p">&gt;)</span> <span class="nt">%&gt;</span>&quot;
+</span><span class='line'>  DataValueField=&quot;Key&quot;
+</span><span class='line'>  DataTextField=&quot;Value&quot;
+</span><span class='line'>  SelectMethod=&quot;GetFilterableColumns&quot;
+</span><span class='line'>  OnSelectedIndexChanged=&quot;ddlFilterableColumns_SelectedIndexChanged&quot;&gt;
+</span><span class='line'><span class="nt">&lt;/asp:DropDownList&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">ID=</span><span class="s">&quot;FilterColumns&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;dd:DynamicFilterRepeater</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">ID=</span><span class="s">&quot;FilterRepeater&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;ItemTemplate&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;div&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;asp:Label</span> <span class="na">ID=</span><span class="s">&quot;lblDisplayName&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span>
+</span><span class='line'>              <span class="na">Text=</span><span class="s">&#39;</span><span class="nt">&lt;%#</span> <span class="n">Eval</span><span class="p">(</span><span class="s">&quot;DisplayName&quot;</span><span class="p">)</span> <span class="nt">%&gt;</span>&#39;
+</span><span class='line'>              OnPreRender=&quot;lblDisplayName_PreRender&quot; /&gt;
+</span><span class='line'>          <span class="nt">&lt;asp:DynamicFilter</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">ID=</span><span class="s">&quot;DynamicFilter&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/ItemTemplate&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dd:DynamicFilterRepeater&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Remember I have mentioned about two-stage filter controls instantiation and a storage for list of filtered columns? Yes, this user control is a place where list of filtered columns could be stored. To get list of filtered columns before <em>Page.InitComplete</em> event I&#8217;m using a little trick - the hidden input field serves as a storage for filtered columns list. Enforcing hidden input to have its ID generated on server makes it possible to retrieve value directly from <em>Page.Form</em> collection at any stage of page lifecycle.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">partial</span> <span class="k">class</span> <span class="nc">DynamicFilterForm</span> <span class="p">:</span> <span class="n">UserControl</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="n">DynamicFilterRepeater</span> <span class="n">FilterRepeater</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">public</span> <span class="n">Type</span> <span class="n">FitlerType</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="na"> [IDReferenceProperty(typeof(GridView))]</span>
+</span><span class='line'>  <span class="k">public</span> <span class="kt">string</span> <span class="n">GridViewID</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="na"> [IDReferenceProperty(typeof(QueryExtender))]</span>
+</span><span class='line'>  <span class="k">public</span> <span class="kt">string</span> <span class="n">QueryExtenderID</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">private</span> <span class="n">MetaTable</span> <span class="n">MetaTable</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">private</span> <span class="n">GridView</span> <span class="n">GridView</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">protected</span> <span class="n">QueryExtender</span> <span class="n">GridQueryExtender</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">protected</span> <span class="k">override</span> <span class="k">void</span> <span class="nf">OnInit</span><span class="p">(</span><span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">base</span><span class="p">.</span><span class="n">OnInit</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">MetaTable</span> <span class="p">=</span> <span class="n">MetaTable</span><span class="p">.</span><span class="n">CreateTable</span><span class="p">(</span><span class="n">FitlerType</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">GridQueryExtender</span> <span class="p">=</span> <span class="k">this</span><span class="p">.</span><span class="n">FindChildControl</span><span class="p">&lt;</span><span class="n">QueryExtender</span><span class="p">&gt;(</span><span class="n">QueryExtenderID</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">GridView</span> <span class="p">=</span> <span class="k">this</span><span class="p">.</span><span class="n">FindChildControl</span><span class="p">&lt;</span><span class="n">GridView</span><span class="p">&gt;(</span><span class="n">GridViewID</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">GridView</span><span class="p">.</span><span class="n">SetMetaTable</span><span class="p">(</span><span class="n">MetaTable</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Tricky thing to retrieve list of filter columns directly from hidden field</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">Request</span><span class="p">.</span><span class="n">Form</span><span class="p">[</span><span class="n">FilterColumns</span><span class="p">.</span><span class="n">UniqueID</span><span class="p">]))</span>
+</span><span class='line'>          <span class="n">FilterRepeater</span><span class="p">.</span><span class="n">FilterColumns</span><span class="p">.</span><span class="n">AddRange</span><span class="p">(</span><span class="n">Request</span><span class="p">.</span><span class="n">Form</span><span class="p">[</span><span class="n">FilterColumns</span><span class="p">.</span><span class="n">UniqueID</span><span class="p">].</span><span class="n">Split</span><span class="p">(</span><span class="sc">&#39;,&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="p">((</span><span class="n">IFilterExpressionProvider</span><span class="p">)</span><span class="n">FilterRepeater</span><span class="p">).</span><span class="n">Initialize</span><span class="p">(</span><span class="n">GridQueryExtender</span><span class="p">.</span><span class="n">DataSource</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">protected</span> <span class="k">override</span> <span class="k">void</span> <span class="nf">OnPreRender</span><span class="p">(</span><span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="n">FilterColumns</span><span class="p">.</span><span class="n">Value</span> <span class="p">=</span> <span class="kt">string</span><span class="p">.</span><span class="n">Join</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">,</span> <span class="n">FilterRepeater</span><span class="p">.</span><span class="n">FilterColumns</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">base</span><span class="p">.</span><span class="n">OnPreRender</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="c1">// event handlers ommited</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusions</h2>
+
+<p>While this solution works, I&#8217;m a bit concerned about it. Existent infrastructure was in my way all the time I experimented with <em>IFilterExpressionProvider</em>, and I had to look deep inside the mechanisms of Dynamic Data to understand and find ways to come round its restrictions. And this leads me to only one conclusion - Dynamic Data was not designed to provide configurable filtering. So my answer on question about possibility of configurable filtering experience implementation with Dynamic Data is <em>yes</em>, but be careful what you wish for, since it was not designed for such kind of scenarios.</p>
+
+<p>Here I did not mentioned how to save filters, but it is pretty simple, and all we need is to save somewhere associative array of &#8220;column-value&#8221; for a specific page. Complete source code is available on <a href="https://github.com/manekovskiy/Configurable-Dynamic-Data-Filters">GitHub</a> and you will need Visual Studio 11 Beta with localdb setup to run sample project.</p>
+
+<p>I would gladly accept criticism, ideas or just thoughts on this particular scenario. Share, do coding and have fun!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Alexander Manekovskiy</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-01T20:12:00+03:00" pubdate data-updated="true">May 1<span>st</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/octopress-blog/blog/categories/development/'>Development</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://manekovskiy.github.com//how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5/" data-via="amanekdev" data-counturl="http://manekovskiy.github.com//how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/octopress-blog/what-types-were-added-moved-or-became-public-in-net-4-5-beta/" title="Previous Post: What Types Were Added, Moved or Became Public in .NET 4.5 Beta">&laquo; What Types Were Added, Moved or Became Public in .NET 4.5 Beta</a>
+      
+      
+        <a class="basic-alignment right" href="/octopress-blog/adding-client-side-validation-support-for-phoneattribute-or-fighting-the-look-behind-in-javascript/" title="Next Post: Adding Client-Side Validation Support for PhoneAttribute or Fighting the Lookbehind in JavaScript">Adding Client-Side Validation Support for PhoneAttribute or Fighting the Lookbehind in JavaScript &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/octopress-blog/configuring-web-forms-routing-with-custom-attributes/">Configuring Web Forms Routing With Custom Attributes</a>
+      </li>
+    
+      <li class="post">
+        <a href="/octopress-blog/improve-your-reading-experience-with-instapaper-calibre-and-command-line/">Improve Your Reading Experience with Instapaper, Calibre and Command Line</a>
+      </li>
+    
+      <li class="post">
+        <a href="/octopress-blog/adding-client-side-validation-support-for-phoneattribute-or-fighting-the-look-behind-in-javascript/">Adding Client-Side Validation Support for PhoneAttribute or Fighting the Lookbehind in JavaScript</a>
+      </li>
+    
+      <li class="post">
+        <a href="/octopress-blog/how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5/">How to Implement Configurable Dynamic Data Filters in ASP.NET 4.5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/octopress-blog/what-types-were-added-moved-or-became-public-in-net-4-5-beta/">What Types Were Added, Moved or Became Public in .NET 4.5 Beta</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/manekovskiy">@manekovskiy</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'manekovskiy',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/octopress-blog/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("amanekdev", 4, false);
+    });
+  </script>
+  <script src="/octopress-blog/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/amanekdev" class="twitter-follow-button" data-show-count="false">Follow @amanekdev</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Alexander Manekovskiy -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'amanek';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://manekovskiy.github.com//how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5/';
+        var disqus_url = 'http://manekovskiy.github.com//how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
