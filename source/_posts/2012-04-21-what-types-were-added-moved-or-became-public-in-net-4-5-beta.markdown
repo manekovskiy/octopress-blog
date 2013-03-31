@@ -21,15 +21,15 @@ It is pretty simple to do compiled assemblies diff if you have [NDepend](http://
 Ok, where to get xml documentation files for .NET 4.0? Binaries with xml docs of .NET 4.0 and 4.5 are located in _<SysDrive>:\Program Files[(x86)]\Reference Assemblies\Microsoft\Framework\.NETFramework_.
 
 
-{% img center {% root_url %}/images/posts/reference-assemblies-folder.png 'Reference assemblies folder location' 'Reference assemblies folder location' %}
+{% img center /images/posts/reference-assemblies-folder.png 'Reference assemblies folder location' 'Reference assemblies folder location' %}
 
 What I wanted is to get some statistics. There are 969 new public types in .NET 4.5. But it does not mean that those are completely new things, because it is not, it means that out of the box .NET 4.5 Beta has +969 new types comparing to .NET 4.0 and now there are totally 14971 public and documented types in .NET 4.5. Almost 15K only public types - that's incredibly huge number.
 
-{% img center {% root_url %}/images/posts/comparison-of-types-count-between-net40-and-net45.png 'Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta' 'Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta' %}
+{% img center /images/posts/comparison-of-types-count-between-net40-and-net45.png 'Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta' 'Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta' %}
 
 Most of new types are located in _System.IdentityModel_, _System.Web_ and _System.Windows.Controls.Ribbon_ assemblies. Taking into account that _System.IdentityModel_ is providing authentication and authorization features and _System.Windows.Controls.Ribbon_ is UI library allowing use of Microsoft Ribbon for WPF, we can make a conclusion that vast amount of new changes is connected with web.
 
-{% img center {% root_url %}/images/posts/new-types-count-by-assembly.png 'Histogram of new types count by asembly' 'Histogram of new types count by asembly' %}
+{% img center /images/posts/new-types-count-by-assembly.png 'Histogram of new types count by asembly' 'Histogram of new types count by asembly' %}
 
 But the most interesting thing was to examine minor changes and see that something new and really useful has been added. And I encourage you to look over list of new classes and I bet you will find something interesting.
 
@@ -116,10 +116,10 @@ Dictionary<string, Dictionary<int, string>> GetPublicTypesByAssembly(string xmlD
 	
 And at the end here are links that will help a bit to embrace the changes of .NET 4.5 Beta:
 	
-  * [What's New in the .NET Framework 4.5 Beta](http://msdn.microsoft.com/en-us/library/ms171868(v=vs.110).aspx)
+  * [What's New in the .NET Framework 4.5 Beta](http://msdn.microsoft.com/en-us/library/ms171868\(v=vs.110\).aspx)
   * [Deep dive into the kernel of the .NET Framework](http://channel9.msdn.com/Events/BUILD/BUILD2011/TOOL-813T)
-  * [.NET Framework Versions and Dependencies](http://msdn.microsoft.com/en-us/library/bb822049(v=vs.110).aspx)
-  * [What's Obsolete in the .NET Framework](http://msdn.microsoft.com/en-us/library/ee461502(v=vs.110).aspx)
+  * [.NET Framework Versions and Dependencies](http://msdn.microsoft.com/en-us/library/bb822049\(v=vs.110\).aspx)
+  * [What's Obsolete in the .NET Framework](http://msdn.microsoft.com/en-us/library/ee461502\(v=vs.110\).aspx)
   * [List of known issues in .NET 4.5 Beta](http://go.microsoft.com/fwlink/?LinkID=237569)
 
 Happy digging in new .NET and don't hesitate sharing!

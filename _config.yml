@@ -4,7 +4,7 @@
 
 url: http://manekovskiy.github.com/
 title: Alexander Manekovskiy
-subtitle: A blogging framework for hackers.
+subtitle: Automating Automation
 author: Alexander Manekovskiy
 simple_search: http://google.com/search
 description:
@@ -64,7 +64,7 @@ github_show_profile_link: true
 github_skip_forks: true
 
 # Twitter
-twitter_user: amanek
+twitter_user: amanekdev
 twitter_tweet_count: 4
 twitter_show_replies: false
 twitter_follow_button: true

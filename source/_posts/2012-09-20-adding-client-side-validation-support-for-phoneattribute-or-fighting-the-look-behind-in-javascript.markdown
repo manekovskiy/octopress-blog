@@ -17,7 +17,7 @@ tags:
 
 Today, I was working on JavaScript implementation of validation routine for [PhoneAttribute](http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.phoneattribute.aspx) in context of my hobby project [DAValidation](http://amanek.com/building-data-annotations-validator-control-with-client-side-validation/). Examining the sources of .NET 4.5 showed that the validation is done via regular expression:
 
-{% img center {% root_url%}/images/posts/phone-validation-regexp-with-non-supported-lookbehind-highlighted.png 'Unsupported lookbehind part of phone validation regexp pattern' 'Unsupported lookbehind part of phone validation regexp pattern' %}
+{% img center /images/posts/phone-validation-regexp-with-non-supported-lookbehind-highlighted.png 'Unsupported lookbehind part of phone validation regexp pattern' 'Unsupported lookbehind part of phone validation regexp pattern' %}
 
 And here is the problem - the pattern uses lookbehind feature [that is not supported in JavaScript](http://www.regular-expressions.info/lookaround.html).
 Quote from [regular-expressions.info:](http://www.regular-expressions.info)

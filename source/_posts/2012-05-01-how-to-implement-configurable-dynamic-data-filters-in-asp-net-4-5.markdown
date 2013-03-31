@@ -21,7 +21,7 @@ For filtering Dynamic Data offers us [_Filter Templates_](http://msdn.microsoft.
 Until .NET 4.5 there were no extension points where we could retake control over filter templates creation. And surprisingly, I found that interface [_IFilterExpressionProvider_](http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.ifilterexpressionprovider(v=vs.110).aspx) became public in .NET 4.5. So now we can extend Dynamic Data filtering mechanism.
 
 
-# ASP.NET Dynamic Data QueryableFilterRepeater
+## ASP.NET Dynamic Data QueryableFilterRepeater ##
 
 
 For the jump start lets remind how List PageTemplate in Dynamic Data looks like:
@@ -57,10 +57,10 @@ public interface IFilterExpressionProvider
 
 The complete call sequence is represented on diagram below.
 
-{% img center {% root_url %}/images/posts/dynamic-data-queryextender-interactions.png 'Sequence diagram showing QueryExtender interaction with Dynamic Data controls' 'Sequence diagram showing QueryExtender interaction with Dynamic Data controls' %}
+{% img center /images/posts/dynamic-data-queryextender-interactions.png 'Sequence diagram showing QueryExtender interaction with Dynamic Data controls' 'Sequence diagram showing QueryExtender interaction with Dynamic Data controls' %}
 
 
-# Building Configurable Alternative to QueryableFilterRepeater
+## Building Configurable Alternative to QueryableFilterRepeater ##
 
 
 As _QueryableFilterRepeater_ is creating filters automatically, the only thing we can do is to hide _DynamicFilter_ on client- or on server-side. To my mind it is not good idea, so a custom implementation of _IFilterExpressionProvider_ is needed. It should support the same item template model as in _QueryableFilterRepeater_ but with ability to add/remove filter controls between postbacks.
@@ -180,12 +180,12 @@ private void LoadCompeted(object sender, EventArgs eventArgs)
 {% endcodeblock %}
 
 
-# Encapsulating DynamicFilterRepeater
+## Encapsulating DynamicFilterRepeater ##
 
 
 _DynamicFilterRepeater_ is only a part of more general component though. Everything it does is rendering of filter controls and providing of filter expression. But to start working, _DynamicFilterRepeater_ needs two things - _IQueryableDataSource _and list of columns to be filtered. Since filtering across the website should be consistent and unified it would be good to encapsulate _DynamicFilterRepeater_ in _UserControl_ which will serve as HTML layout and a glue between page (with _IQueryableDataSource_, _QueryExtender_ and data source bound control) and _DynamicFilterRepeater_. In my example I chose _GridView_.
 
-{% codeblock lang:aspx-cs%}
+{% codeblock lang:aspx-cs %}
 <asp:Label runat="server" Text="Add fitler" AssociatedControlID="ddlFilterableColumns" />
 <asp:DropDownList runat="server" ID="ddlFilterableColumns" CssClass="ui-widget"
 	AutoPostBack="True"
@@ -253,7 +253,7 @@ public partial class DynamicFilterForm : UserControl
 {% endcodeblock %}
 
 
-# Conclusions
+## Conclusions ##
 
 
 While this solution works, I'm a bit concerned about it. Existent infrastructure was in my way all the time I experimented with _IFilterExpressionProvider_, and I had to look deep inside the mechanisms of Dynamic Data to understand and find ways to come round its restrictions. And this leads me to only one conclusion - Dynamic Data was not designed to provide configurable filtering. So my answer on question about possibility of configurable filtering experience implementation with Dynamic Data is _yes_, but be careful what you wish for, since it was not designed for such kind of scenarios.
