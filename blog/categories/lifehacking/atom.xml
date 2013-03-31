@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Lifehacking | Alexander Manekovskiy]]></title>
-  <link href="http://manekovskiy.github.com//blog/categories/lifehacking/atom.xml" rel="self"/>
-  <link href="http://manekovskiy.github.com//"/>
-  <updated>2013-03-31T19:19:50+03:00</updated>
-  <id>http://manekovskiy.github.com//</id>
+  <link href="http://amanek.com/blog/categories/lifehacking/atom.xml" rel="self"/>
+  <link href="http://amanek.com/"/>
+  <updated>2013-03-31T20:31:48+03:00</updated>
+  <id>http://amanek.com/</id>
   <author>
     <name><![CDATA[Alexander Manekovskiy]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Improve Your Reading Experience with Instapaper, Calibre and Command Line]]></title>
-    <link href="http://manekovskiy.github.com//improve-your-reading-experience-with-instapaper-calibre-and-command-line/"/>
+    <link href="http://amanek.com/improve-your-reading-experience-with-instapaper-calibre-and-command-line/"/>
     <updated>2012-11-17T15:39:17+02:00</updated>
-    <id>http://manekovskiy.github.com//improve-your-reading-experience-with-instapaper-calibre-and-command-line</id>
+    <id>http://amanek.com/improve-your-reading-experience-with-instapaper-calibre-and-command-line</id>
     <content type="html"><![CDATA[<p>After I read Scott Hanselman's post "<a href="http://www.hanselman.com/blog/InstapaperDeliveredToYourKindleChangesHowYouConsumeWebContentPlusIFTTTBlogsAndMore.aspx">Instapaper delivered to your Kindle changes how you consume web content - Plus IFTTT, blogs and more</a>" I bethought that I wanted to create an automated <a href="http://www.instapaper.com">Instapaper</a> to my e-book reader "contend delivery system". Now as I finished here is my little story.</p>
 
 <p><img class="right" src="/images/posts/lbookv5-ereader.jpg" title="LBook V5" alt="LBook V5">Almost a year ago when I started using <a href="http://www.instapaper.com">Instapaper</a> I realized that it would be great to grab all articles that were collected through the week, convert them to <a href="http://en.wikipedia.org/wiki/EPUB">EPUB</a> format and send electronic book to my e-book reader device. The only problem was in my device - <a href="http://lbook.ua/products/lbooks/v5/">Lbook V5</a>. Yes, it is totally outdated and old comparing to Kindle devices. It supports EPUB but does not have access to the Internet, so Instapaper <em>"download"</em> feature doesn't work for me.</p>

@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: About me | Alexander Manekovskiy]]></title>
-  <link href="http://manekovskiy.github.com//blog/categories/about-me/atom.xml" rel="self"/>
-  <link href="http://manekovskiy.github.com//"/>
-  <updated>2013-03-31T19:19:50+03:00</updated>
-  <id>http://manekovskiy.github.com//</id>
+  <link href="http://amanek.com/blog/categories/about-me/atom.xml" rel="self"/>
+  <link href="http://amanek.com/"/>
+  <updated>2013-03-31T20:31:48+03:00</updated>
+  <id>http://amanek.com/</id>
   <author>
     <name><![CDATA[Alexander Manekovskiy]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[About me]]></title>
-    <link href="http://manekovskiy.github.com//about-me/"/>
+    <link href="http://amanek.com/about-me/"/>
     <updated>2011-05-02T19:33:15+03:00</updated>
-    <id>http://manekovskiy.github.com//about-me</id>
+    <id>http://amanek.com/about-me</id>
     <content type="html"><![CDATA[<p>Welcome!</p>
 
 <p>My name is Alexander Manekovskiy. I'm .NET developer currently working in <a href="http://bit.biz.ua">BIT</a>, where my main duties are to develop and maintain couple of .NET based solutions and sometimes represent company on regional IT conferences and meetings. Also I'm working as a trainer at <a href="http://itstep.org">ITStep</a>.</p>

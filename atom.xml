@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Alexander Manekovskiy]]></title>
-  <link href="http://manekovskiy.github.com//atom.xml" rel="self"/>
-  <link href="http://manekovskiy.github.com//"/>
-  <updated>2013-03-31T19:19:50+03:00</updated>
-  <id>http://manekovskiy.github.com//</id>
+  <link href="http://amanek.com/atom.xml" rel="self"/>
+  <link href="http://amanek.com/"/>
+  <updated>2013-03-31T20:31:48+03:00</updated>
+  <id>http://amanek.com/</id>
   <author>
     <name><![CDATA[Alexander Manekovskiy]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Configuring Web Forms Routing With Custom Attributes]]></title>
-    <link href="http://manekovskiy.github.com//configuring-web-forms-routing-with-custom-attributes/"/>
+    <link href="http://amanek.com/configuring-web-forms-routing-with-custom-attributes/"/>
     <updated>2012-12-23T20:00:20+02:00</updated>
-    <id>http://manekovskiy.github.com//configuring-web-forms-routing-with-custom-attributes</id>
+    <id>http://amanek.com/configuring-web-forms-routing-with-custom-attributes</id>
     <content type="html"><![CDATA[<blockquote><p><strong>1/13/2013 Update:</strong> Now <em>PhysicalFile</em> property is filled and updated automatically, using <a href="https://github.com/manekovskiy/Web-Forms-Routing-Through-Attributes/blob/master/PhysicalFilePathUpdater.tt">T4 template</a>. Say good-bye to issues caused by typos and copy-pasting.</p></blockquote>
 
 <p>Recently I had to add routing to existent ASP.NET Web Forms application. I was (and I suppose I&#8217;m still) new to this thing so I started from <a href="http://msdn.microsoft.com/en-us/library/dd329551(v=vs.100).aspx">Walkthrough: Using ASP.NET Routing in a Web Forms Application</a> and it seemed fine until I started coding.</p>
@@ -208,12 +208,12 @@
   
   <entry>
     <title type="html"><![CDATA[Improve Your Reading Experience with Instapaper, Calibre and Command Line]]></title>
-    <link href="http://manekovskiy.github.com//improve-your-reading-experience-with-instapaper-calibre-and-command-line/"/>
+    <link href="http://amanek.com/improve-your-reading-experience-with-instapaper-calibre-and-command-line/"/>
     <updated>2012-11-17T15:39:17+02:00</updated>
-    <id>http://manekovskiy.github.com//improve-your-reading-experience-with-instapaper-calibre-and-command-line</id>
+    <id>http://amanek.com/improve-your-reading-experience-with-instapaper-calibre-and-command-line</id>
     <content type="html"><![CDATA[<p>After I read Scott Hanselman&#8217;s post &#8221;<a href="http://www.hanselman.com/blog/InstapaperDeliveredToYourKindleChangesHowYouConsumeWebContentPlusIFTTTBlogsAndMore.aspx">Instapaper delivered to your Kindle changes how you consume web content - Plus IFTTT, blogs and more</a>&#8221; I bethought that I wanted to create an automated <a href="http://www.instapaper.com">Instapaper</a> to my e-book reader &#8220;contend delivery system&#8221;. Now as I finished here is my little story.</p>
 
-<p><img class="right" src="http://manekovskiy.github.com//images/posts/lbookv5-ereader.jpg" title="LBook V5" alt="LBook V5">Almost a year ago when I started using <a href="http://www.instapaper.com">Instapaper</a> I realized that it would be great to grab all articles that were collected through the week, convert them to <a href="http://en.wikipedia.org/wiki/EPUB">EPUB</a> format and send electronic book to my e-book reader device. The only problem was in my device - <a href="http://lbook.ua/products/lbooks/v5/">Lbook V5</a>. Yes, it is totally outdated and old comparing to Kindle devices. It supports EPUB but does not have access to the Internet, so Instapaper <em>&#8220;download&#8221;</em> feature doesn&#8217;t work for me.</p>
+<p><img class="right" src="http://amanek.com/images/posts/lbookv5-ereader.jpg" title="LBook V5" alt="LBook V5">Almost a year ago when I started using <a href="http://www.instapaper.com">Instapaper</a> I realized that it would be great to grab all articles that were collected through the week, convert them to <a href="http://en.wikipedia.org/wiki/EPUB">EPUB</a> format and send electronic book to my e-book reader device. The only problem was in my device - <a href="http://lbook.ua/products/lbooks/v5/">Lbook V5</a>. Yes, it is totally outdated and old comparing to Kindle devices. It supports EPUB but does not have access to the Internet, so Instapaper <em>&#8220;download&#8221;</em> feature doesn&#8217;t work for me.</p>
 
 <p>A few month ago I found <a href="http://calibre-ebook.com">Calibre</a> - free and open source e-book library management application. It helped me to organize and manage all my electronic library and I&#8217;m totally happy with it. Calibre has everything that could be possibly needed - scheduler support, custom news source with interactive setup and converters to various e-book formats. But what most interesting and important Calibre has command line <a href="http://manual.calibre-ebook.com/cli/ebook-convert.html"><em>ebook-convert.exe</em></a> utility which could be driven by <em>recipe files</em>. <a href="http://manual.calibre-ebook.com/news.html">Recipes in Calibre</a> are just Python scripts (with a bits of custom logic if it is needed to parse some specific news source).</p>
 
@@ -336,12 +336,12 @@
   
   <entry>
     <title type="html"><![CDATA[Adding Client-Side Validation Support for PhoneAttribute or Fighting the Lookbehind in JavaScript]]></title>
-    <link href="http://manekovskiy.github.com//adding-client-side-validation-support-for-phoneattribute-or-fighting-the-look-behind-in-javascript/"/>
+    <link href="http://amanek.com/adding-client-side-validation-support-for-phoneattribute-or-fighting-the-look-behind-in-javascript/"/>
     <updated>2012-09-20T22:22:55+03:00</updated>
-    <id>http://manekovskiy.github.com//adding-client-side-validation-support-for-phoneattribute-or-fighting-the-look-behind-in-javascript</id>
+    <id>http://amanek.com/adding-client-side-validation-support-for-phoneattribute-or-fighting-the-look-behind-in-javascript</id>
     <content type="html"><![CDATA[<p>Today, I was working on JavaScript implementation of validation routine for <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.phoneattribute.aspx">PhoneAttribute</a> in context of my hobby project <a href="http://amanek.com/building-data-annotations-validator-control-with-client-side-validation/">DAValidation</a>. Examining the sources of .NET 4.5 showed that the validation is done via regular expression:</p>
 
-<p><img class="center" src="http://manekovskiy.github.com//images/posts/phone-validation-regexp-with-non-supported-lookbehind-highlighted.png" title="Unsupported lookbehind part of phone validation regexp pattern" alt="Unsupported lookbehind part of phone validation regexp pattern"></p>
+<p><img class="center" src="http://amanek.com/images/posts/phone-validation-regexp-with-non-supported-lookbehind-highlighted.png" title="Unsupported lookbehind part of phone validation regexp pattern" alt="Unsupported lookbehind part of phone validation regexp pattern"></p>
 
 <p>And here is the problem - the pattern uses lookbehind feature <a href="http://www.regular-expressions.info/lookaround.html">that is not supported in JavaScript</a>.
 Quote from <a href="http://www.regular-expressions.info">regular-expressions.info:</a></p>
@@ -406,9 +406,9 @@ Quote from <a href="http://www.regular-expressions.info">regular-expressions.inf
   
   <entry>
     <title type="html"><![CDATA[How to Implement Configurable Dynamic Data Filters in ASP.NET 4.5]]></title>
-    <link href="http://manekovskiy.github.com//how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5/"/>
+    <link href="http://amanek.com/how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5/"/>
     <updated>2012-05-01T20:12:00+03:00</updated>
-    <id>http://manekovskiy.github.com//how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5</id>
+    <id>http://amanek.com/how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5</id>
     <content type="html"><![CDATA[<p>Every time, when we speaking about data driven web applications there is a task of providing data filtering feature or configurable filters with ability to save the search criteria individually for each user. The most convenient filtering experience I have ever encountered were the bug tracking systems. Fast and simple. To get the idea of what I&#8217;m talking about just look at <a href="http://www.redmine.org/projects/redmine/issues">Redmine Issues page</a>.
 Can we implement something similar with pure ASP.NET, particularly with <a href="http://msdn.microsoft.com/en-us/library/ee845452.aspx"><em>ASP.NET Dynamic Data</em></a>? Why Dynamic Data? Because of its focus on metadata which is set by attributes from <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.aspx">DataAnnotations namespace</a> and convention over configuration approach for building data driven applications. Its simple and convenient, and does not take much efforts to extend it.</p>
 
@@ -472,7 +472,7 @@ Can we implement something similar with pure ASP.NET, particularly with <a href=
 
 <p>The complete call sequence is represented on diagram below.</p>
 
-<p><img class="center" src="http://manekovskiy.github.com//images/posts/dynamic-data-queryextender-interactions.png" title="Sequence diagram showing QueryExtender interaction with Dynamic Data controls" alt="Sequence diagram showing QueryExtender interaction with Dynamic Data controls"></p>
+<p><img class="center" src="http://amanek.com/images/posts/dynamic-data-queryextender-interactions.png" title="Sequence diagram showing QueryExtender interaction with Dynamic Data controls" alt="Sequence diagram showing QueryExtender interaction with Dynamic Data controls"></p>
 
 <h2>Building Configurable Alternative to QueryableFilterRepeater</h2>
 
@@ -827,9 +827,9 @@ Can we implement something similar with pure ASP.NET, particularly with <a href=
   
   <entry>
     <title type="html"><![CDATA[What Types Were Added, Moved or Became Public in .NET 4.5 Beta]]></title>
-    <link href="http://manekovskiy.github.com//what-types-were-added-moved-or-became-public-in-net-4-5-beta/"/>
+    <link href="http://amanek.com/what-types-were-added-moved-or-became-public-in-net-4-5-beta/"/>
     <updated>2012-04-21T03:00:06+03:00</updated>
-    <id>http://manekovskiy.github.com//what-types-were-added-moved-or-became-public-in-net-4-5-beta</id>
+    <id>http://amanek.com/what-types-were-added-moved-or-became-public-in-net-4-5-beta</id>
     <content type="html"><![CDATA[<p>There is a <a href="http://www.asp.net/vnext/overview/whitepapers/whats-new">whitepaper</a> about new features of ASP.NET 4.5, dozens of blog posts, videos from conferences, some tutorials and <a href="http://msdn.microsoft.com/en-us/library/ms171868(v=vs.110">MSDN</a>.aspx) topic describing overall changes. But why there are no reports about what types were actually added in .NET 4.5 Beta? Where are lists of &#8220;new types added to assembly N&#8221; or &#8220;types that became public in assembly N&#8221;? I understand that these lists are not very interesting and that it is more convenient to read descriptions of the new features. Nobody cares about details until they start working against you. And this is normal, right and ok, but now I have some free time and I want to share info about new types that were added or became public in .NET 4.5 comparing to .NET 4.0.</p>
 
 <p>Why I became so interested in this? Well, I accidentally found that <a href="http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.ifilterexpressionprovider(v=vs.110"><em>System.Web.DynamicData.IFilterExpressionProvider</em></a>.aspx) interface became public. Briefly, this allows to work with <a href="http://msdn.microsoft.com/en-us/library/system.web.ui.webcontrols.queryextender.aspx"><em>QueryExtender</em></a> and finally (I really wanted this since .NET 3.5) support its <a href="http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.dynamicfilterexpression.aspx"><em>DynamicFilterExpression</em></a>. <del>Maybe on next weekend I&#8217;ll post</del> I&#8217;ve already posted about <a href="http://amanek.com/?p=100">my experiments with IFilterExpressionProvider</a>, take a look if you are interested, and now lets return to the main topic.</p>
@@ -838,15 +838,15 @@ Can we implement something similar with pure ASP.NET, particularly with <a href=
 
 <p>Ok, where to get xml documentation files for .NET 4.0? Binaries with xml docs of .NET 4.0 and 4.5 are located in <em><SysDrive>:\Program Files[(x86)]\Reference Assemblies\Microsoft\Framework.NETFramework</em>.</p>
 
-<p><img class="center" src="http://manekovskiy.github.com//images/posts/reference-assemblies-folder.png" title="Reference assemblies folder location" alt="Reference assemblies folder location"></p>
+<p><img class="center" src="http://amanek.com/images/posts/reference-assemblies-folder.png" title="Reference assemblies folder location" alt="Reference assemblies folder location"></p>
 
 <p>What I wanted is to get some statistics. There are 969 new public types in .NET 4.5. But it does not mean that those are completely new things, because it is not, it means that out of the box .NET 4.5 Beta has +969 new types comparing to .NET 4.0 and now there are totally 14971 public and documented types in .NET 4.5. Almost 15K only public types - that&#8217;s incredibly huge number.</p>
 
-<p><img class="center" src="http://manekovskiy.github.com//images/posts/comparison-of-types-count-between-net40-and-net45.png" title="Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta" alt="Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta"></p>
+<p><img class="center" src="http://amanek.com/images/posts/comparison-of-types-count-between-net40-and-net45.png" title="Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta" alt="Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta"></p>
 
 <p>Most of new types are located in <em>System.IdentityModel</em>, <em>System.Web</em> and <em>System.Windows.Controls.Ribbon</em> assemblies. Taking into account that <em>System.IdentityModel</em> is providing authentication and authorization features and <em>System.Windows.Controls.Ribbon</em> is UI library allowing use of Microsoft Ribbon for WPF, we can make a conclusion that vast amount of new changes is connected with web.</p>
 
-<p><img class="center" src="http://manekovskiy.github.com//images/posts/new-types-count-by-assembly.png" title="Histogram of new types count by asembly" alt="Histogram of new types count by asembly"></p>
+<p><img class="center" src="http://amanek.com/images/posts/new-types-count-by-assembly.png" title="Histogram of new types count by asembly" alt="Histogram of new types count by asembly"></p>
 
 <p>But the most interesting thing was to examine minor changes and see that something new and really useful has been added. And I encourage you to look over list of new classes and I bet you will find something interesting.</p>
 
@@ -1024,9 +1024,9 @@ Can we implement something similar with pure ASP.NET, particularly with <a href=
   
   <entry>
     <title type="html"><![CDATA[How Internet Archive Saved My Day]]></title>
-    <link href="http://manekovskiy.github.com//how-internet-archive-saved-my-day/"/>
+    <link href="http://amanek.com/how-internet-archive-saved-my-day/"/>
     <updated>2012-01-09T16:09:50+02:00</updated>
-    <id>http://manekovskiy.github.com//how-internet-archive-saved-my-day</id>
+    <id>http://amanek.com/how-internet-archive-saved-my-day</id>
     <content type="html"><![CDATA[<blockquote><p>UPDATE: <strong>igoogle_themes.zip</strong> archive is no longer available through Wayback Machine since it is pointing to <strong>mattberseth2.com</strong> which is not working. However archive could be found on my <a href="http://sdrv.ms/XpvZMi" title="igoogle_themes.zip">SkyDrive</a>.</p></blockquote>
 
 <p><img class="right" src="http://www.archive.org/images/wayback.gif" title="Internet Wayback Machine Logo" alt="Internet Wayback Machine Logo"> Today when I had to find a theme for ASP.NET GridView the first resource I found in my memory was <a href="http://mattberseth.com/">Matt Berseth&#8217;s blog</a> (Google also found something for me but I&#8217;m convinced that &#8220;favorites list&#8221; in my memory is a much better and reliable source). Matt had great examples of AJAX control extenders and some other things connected with styling of ASP.NET controls on his site. But while domain still belongs to Matt Berseth, the site is currently down and not available.</p>
@@ -1043,9 +1043,9 @@ Can we implement something similar with pure ASP.NET, particularly with <a href=
   
   <entry>
     <title type="html"><![CDATA[Building Data Annotations Validator Control With Client-Side Validation]]></title>
-    <link href="http://manekovskiy.github.com//building-data-annotations-validator-control-with-client-side-validation/"/>
+    <link href="http://amanek.com/building-data-annotations-validator-control-with-client-side-validation/"/>
     <updated>2012-01-04T23:16:45+02:00</updated>
-    <id>http://manekovskiy.github.com//building-data-annotations-validator-control-with-client-side-validation</id>
+    <id>http://amanek.com/building-data-annotations-validator-control-with-client-side-validation</id>
     <content type="html"><![CDATA[<p>When I had worked on ASP.NET MVC project I really liked how input is validated with Data Annotations attributes. And when I had to return to the Web Forms, and write a simple form with some validation, I was wondering how I lived before with standard validator controls. For me, it was never convenient, when I had to write an enormous amount of server tags just to state that &#8220;this is required field which accepts only numbers in specified range&#8230;&#8221;. Yes, there is nothing terrible in declaration of two or three validation controls instead of one. But, if I had a choice, I would like to write only one validator per field and keep all input validation logic as far as I can from the UI markup. And being a developer the code-only approach is most natural for me.</p>
 
 <p><em>System.ComponentModel.DataAnnotations</em> namespace was introduced in .NET 3.5, and now its classes are supported by wide range of technologies like WPF, Silverlight, RIA Services, ASP.NET MVC, ASP.NET Dynamic Data but not in Web Forms. I thought that someone had already implemented ready-to-use Validator Control with client-side validation, but after searching the Web and most popular open source hosting services I found nothing. Ok, not nothing, but implementations what I have found lacked client-side validation and had some other issues. So I decided to write my own Data Annotations Validator that will also support client-side validation.</p>
@@ -1555,9 +1555,9 @@ Can we implement something similar with pure ASP.NET, particularly with <a href=
   
   <entry>
     <title type="html"><![CDATA[About me]]></title>
-    <link href="http://manekovskiy.github.com//about-me/"/>
+    <link href="http://amanek.com/about-me/"/>
     <updated>2011-05-02T19:33:15+03:00</updated>
-    <id>http://manekovskiy.github.com//about-me</id>
+    <id>http://amanek.com/about-me</id>
     <content type="html"><![CDATA[<p>Welcome!</p>
 
 <p>My name is Alexander Manekovskiy. I&#8217;m .NET developer currently working in <a href="http://bit.biz.ua">BIT</a>, where my main duties are to develop and maintain couple of .NET based solutions and sometimes represent company on regional IT conferences and meetings. Also I&#8217;m working as a trainer at <a href="http://itstep.org">ITStep</a>.</p>
