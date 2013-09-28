@@ -9,7 +9,7 @@
   <meta name="author" content="Alexander Manekovskiy">
 
   
-  <meta name="description" content="1/13/2013 Update: Now PhysicalFile property is filled and updated automatically, using T4 template. Say good-bye to issues caused by typos and copy- &hellip;">
+  <meta name="description" content="Every time I need to install and configure developer environment on a fresh OS (either on real or virtual machine) I feel irritated by the fact that &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,114 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/automate-your-dev-environment-setup/">Automate Your Dev Environment Setup</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-14T19:03:00+03:00" pubdate data-updated="true">Sep 14<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Every time I need to install and configure developer environment on a fresh OS (either on real or virtual machine) I feel irritated by the fact that I need to spend almost all my day just clicking around various installation dialogs confirming destination folders, accepting user agreements (that I can bet no one even tried to read fully) and performing other repetitive and almost pointless tasks.</p>
+
+<p>I&#8217;m developer, I&#8217;m creating things (or at least trying to), so why would I waste my time doing dull and pointless work?! Ah, and why should I keep in mind (or in notepad, &#8220;installs&#8221; folder, etc.) a list of my tools and installation packages?</p>
+
+<p>But honestly, I just cannot resist or give a single reason why this shouldn&#8217;t be automated. Said it - did it. And here are my adventures.</p>
+
+<h2>Let&#8217;s get Chocolatey?</h2>
+
+<p>Maybe you&#8217;ve heard about <a href="http://chocolatey.org/" title="Chocolatey website">Chocolatey</a>. In short this tool is like <a href="http://en.wikipedia.org/wiki/Advanced_Packaging_Tool" title="Wiki page for apt-get">apt-get</a> but for Windows and it is built on top of NuGet.</p>
+
+<blockquote><p>For those who are not familiar with NuGet and all variety of tools around it take a look at <a href="http://www.codeproject.com/Reference/628210/An-Overview-of-the-NuGet-Ecosystem">An Overview of the NuGet Ecosystem</a> article by Xavier Decoster.</p>
+
+<p>For a quick Chocolatey overview I can recommend Scott Hanselman&#8217;s post <a href="http://www.hanselman.com/blog/IsTheWindowsUserReadyForAptget.aspx">Is the Windows user ready for apt-get</a>?</p></blockquote>
+
+<p>As of time of writing Chocolatey had 1,244 unique packages which is pretty cool - it is really hard to find package that does not exist there.</p>
+
+<p>After a little search it appeared that I can even install Visual Studio with Chocolatey. Okay, cool, let&#8217;s do this.</p>
+
+<h3>No Battle Plan Survives Contact With the Enemy</h3>
+
+<p>I tried to install my first package on a fresh Windows 8 virtual machine and failed on the very first step. Jumping ahead of the story partially that was my fail but let&#8217;s roll on.</p>
+
+<p>I wanted no more no less - install <a href="http://chocolatey.org/packages/VisualStudio2013Ultimate" title="VS 2013 chocolatey package">Visual Studio 2013 Ultimate Preview</a> and see its new shining features for web devs. As described on site I installed Chocolatey and run <code>cinst VisualStudio2013Ultimate</code> command. Package downloaded, and .NET 4.5.1 installation started. Boom! I got my first error:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[ERROR] Exception calling "Start" with "1" argument(s): "The operation was canceled by the user"</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img class="center" src="/images/posts/win8-chocolatey-net451-error.png" title="Chocolatey .NET 4.5.1 installation error" alt="Chocolatey .NET 4.5.1 installation error"></p>
+
+<p>After some research it appeared that by default Windows 8 processes are not launched with administrator privileges (even if current user is member of Administrator group) and because of silent installation mode (read &#8220;non-UI mode&#8221;) UAC prompt was not showed and attempt to elevate rights was cancelled by default. To fix this issue I had to disable UAC notifications. I have spent quite time searching the cause of my issue and decided to table VS 2013 for now and proceed with installation of the Visual Studio 2012 instead.</p>
+
+<p>To install 90 day trial of Visual Studio 2012 Ultimate I run <code>cinst VisualStudio2012Ultimate</code> command and after a little pause and some blinking of standard installation dialog another crazy error appeared:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>blah-blah-blah. Exit code was '-2147185721'</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img class="center" src="/images/posts/win8-chocolatey-vs2012-error-1.png" title="Chocolatey VS 2012 installation error" alt="Chocolatey VS 2012 installation error"></p>
+
+<p>Thankfully, I have experience with silent installations of Visual Studio and I have a link to <a href="http://msdn.microsoft.com/en-us/library/vstudio/ee225238.aspx" title="Visual Studio Administrator Guide on MSDN">Visual Studio Administrator Guide</a> in my bookmarks which contains a list of exit codes for installation package. <code>-2147185721</code> code is &#8221;<em>Incomplete - Reboot Required</em>&#8221;. That sounded logically. <code>/NoRestart</code> switch in VS chocolatey install script setup was automatically cancelled and returned non-zero value which was treated as error. Okay, rebooted the machine.</p>
+
+<p>But this was not my last error :). After reboot using <code>-force</code> parameter I resumed installation process of the Visual Studio and got my next error (extracted from installation log <code>vs.log</code> file):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[0824:0820][2013-09-14T12:56:04]: Applied execute package: vcRuntimeDebug_x86, result: 0x0, restart: None
+</span><span class='line'>[082C:09C4][2013-09-14T12:56:04]: Registering dependency: {ae17ae9b-af38-40d2-a194-6102c56ed502} on package provider: Microsoft.VS.VC_RuntimeDebug_x86,v11, package: vcRuntimeDebug_x86
+</span><span class='line'>[082C:0850][2013-09-14T12:56:12]: Error 0x80070490: Failed to find expected public key in certificate chain.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The last words from &#8220;chocolatey gods&#8221; were <code>Exit code was '1603'</code>.</p>
+
+<p>This time nothing came to my mind except trying to install updates on Windows first (words &#8220;certificate chain&#8221; lead me to this idea). As it turned out that was the case and my great mistake not to install updates first.</p>
+
+<blockquote><p>Moral: never try to install something serious unless you have all updates for your OS installed.</p></blockquote>
+
+<p>After all these errors I decided to rollback my virtual machine back to the initial state and start from scratch. This time I installed all Windows updates and after I finished all Chocolatey packages were installed without any errors.</p>
+
+<h2>Share all the scripts!</h2>
+
+<p><img class="right" src="/images/posts/share-all-the-scripts.jpg" title="Share all the scripts!" alt="Share all the scripts!"></p>
+
+<p>After I finished with my journey I decided that it would be great to keep my scripts in one place and have a possibility to share them. I cannot find any better service for this but Github. Now I can share my scripts, update them, have a history of changes, make tags and special branches for some specific setups. Isn&#8217;t this great and how it should be?</p>
+
+<p>Go fork <a href="https://github.com/manekovskiy/devenv-setup-scripts" title="devenv-setup-scripts project page">my repository</a> and start making your life easier!</p>
+
+<h2>Conclusions</h2>
+
+<p>Here I did only first steps on the road to the bright future of the automated environment setup. And while we can use Chocolatey to save time with installations we still need to configure the stuff. Of course if you are using default settings this is not a problem but unfortunatelly this is not my case ;)</p>
+
+<p>I think in my next post I will share my experience in automated configurations trasferring.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1866,6 +1974,10 @@ Can we implement something similar with pure ASP.NET, particularly with <a href=
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/automate-your-dev-environment-setup/">Automate your dev environment setup</a>
+      </li>
+    
+      <li class="post">
         <a href="/configuring-web-forms-routing-with-custom-attributes/">Configuring Web Forms Routing With Custom Attributes</a>
       </li>
     
@@ -1879,10 +1991,6 @@ Can we implement something similar with pure ASP.NET, particularly with <a href=
     
       <li class="post">
         <a href="/how-to-implement-configurable-dynamic-data-filters-in-asp-net-4-5/">How to Implement Configurable Dynamic Data Filters in ASP.NET 4.5</a>
-      </li>
-    
-      <li class="post">
-        <a href="/what-types-were-added-moved-or-became-public-in-net-4-5-beta/">What Types Were Added, Moved or Became Public in .NET 4.5 Beta</a>
       </li>
     
   </ul>
