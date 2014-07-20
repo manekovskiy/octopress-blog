@@ -58,7 +58,7 @@ module Jekyll
       @highlight = true
       if markup =~ /\s*lang:(\w+\-?\w*)/i
         @filetype = $1
-        markup = markup.sub(/lang:(\w+\-?\w*)/i,'')
+        markup = markup.sub(/\s*lang:(\w+\-?\w*)/i ,'')
       end
       if markup =~ CaptionUrlTitle
         @file = $1
