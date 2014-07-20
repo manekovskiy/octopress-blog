@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Development | Alexander Manekovskiy]]></title>
   <link href="http://amanek.com/blog/categories/development/atom.xml" rel="self"/>
   <link href="http://amanek.com/"/>
-  <updated>2013-09-28T18:40:55+03:00</updated>
+  <updated>2014-07-20T15:58:58+03:00</updated>
   <id>http://amanek.com/</id>
   <author>
     <name><![CDATA[Alexander Manekovskiy]]></name>
@@ -12,6 +12,78 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[How To Configure ComEmu Task For GitHub For Windows Portable Git]]></title>
+    <link href="http://amanek.com/how-to-configure-comemu-task-for-github-for-windows-portable-git/"/>
+    <updated>2014-07-20T11:58:00+03:00</updated>
+    <id>http://amanek.com/how-to-configure-comemu-task-for-github-for-windows-portable-git</id>
+    <content type="html"><![CDATA[<p>Maybe a year or something ago I switched from <a href="http://sourceforge.net/projects/console/files/">Console2</a> to <a href="http://code.google.com/p/conemu-maximus5/">ConEmu</a>. One of the reasons behind this switch was a <a href="http://code.google.com/p/conemu-maximus5/wiki/SettingsTasks">Task</a> concept that ConEmu offered.</p>
+
+<p>There was only one problem with my tasks setup - I wanted to launch Portable Git which is a part of GitHub for Windows installation inside ConEmu. But launching the <code>git-cmd.bat</code> from ConEmu will create a new  window.</p>
+
+<blockquote><p>As you may know Portable Git binaries are located in  <code>%LOCALAPPDATA%\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\</code>
+Note that the last part of the directory name is a version string so it could change in future.</p></blockquote>
+
+<p>The problem lies in the last line of the <code>git-cmd.bat</code> file:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>git-cmd.bat </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='bat'><span class='line'><span class="p">@</span>rem <span class="k">Do</span> not use <span class="s2">&quot;echo off&quot;</span> to not affect any child calls.
+</span><span class='line'><span class="p">@</span><span class="k">setlocal</span>&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;@rem Get the abolute path to the current directory<span class="p">,</span> which is assumed to be the
+</span><span class='line'><span class="p">@</span>rem Git installation root.
+</span><span class='line'><span class="p">@</span><span class="k">for</span> <span class="n">/F</span> <span class="s2">&quot;delims=&quot;</span> <span class="nv">%%I</span> in (<span class="s2">&quot;%~dp0&quot;</span>) <span class="k">do</span> @<span class="k">set</span> <span class="nv">git_install_root</span><span class="o">=</span><span class="nv">%%~fI</span>
+</span><span class='line'><span class="p">@</span><span class="k">set</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">%git_install_root%</span>\bin;<span class="nv">%git_install_root%</span>\mingw\bin;<span class="nv">%git_install_root%</span>\cmd;<span class="nv">%PATH%</span>&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;@<span class="k">if</span> not <span class="k">exist</span> <span class="s2">&quot;%HOME%&quot;</span> @<span class="k">set</span> <span class="nv">HOME</span><span class="o">=</span><span class="nv">%HOMEDRIVE%%HOMEPATH%</span>
+</span><span class='line'><span class="p">@</span><span class="k">if</span> not <span class="k">exist</span> <span class="s2">&quot;%HOME%&quot;</span> @<span class="k">set</span> <span class="nv">HOME</span><span class="o">=</span><span class="nv">%USERPROFILE%</span>&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;@<span class="k">set</span> <span class="nv">PLINK_PROTOCOL</span><span class="o">=</span>ssh
+</span><span class='line'><span class="p">@</span><span class="k">if</span> not <span class="k">defined</span> TERM <span class="k">set</span> <span class="nv">TERM</span><span class="o">=</span>msys&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;@<span class="k">cd</span> <span class="nv">%HOME%</span>
+</span><span class='line'><span class="p">@</span>start <span class="nv">%COMSPEC%</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>To fix the issue replace last line <code>@start %COMSPEC%</code> with <code>@call %COMSPEC%</code>.</p>
+
+<blockquote><p>This change will <strong>not</strong> break the existing "Open in Git Shell" context action in GitHub application GUI.</p></blockquote>
+
+<p>The difference between <code>start</code> and <code>call</code> commands is that <code>call</code> runs the batch script inside the same shell instance while <code>start</code> creates a new instance. Here is a little fragment from <code>start</code> and <code>call</code> help:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>C:>call /?
+</span><span class='line'>Calls one batch program from another.&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>C:>start /?
+</span><span class='line'>Starts a separate window to run a specified program or command.</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>That's it! Now following task for ConEmu will work as expected:</p>
+
+<p><code>*cmd /k Title Git &amp; "%LOCALAPPDATA%\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\git-cmd.bat"</code></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Automate your dev environment setup]]></title>
@@ -871,214 +943,6 @@ Can we implement something similar with pure ASP.NET, particularly with <a href=
 <p>Here I did not mentioned how to save filters, but it is pretty simple, and all we need is to save somewhere associative array of "column-value" for a specific page. Complete source code is available on <a href="https://github.com/manekovskiy/Configurable-Dynamic-Data-Filters">GitHub</a> and you will need Visual Studio 11 Beta with localdb setup to run sample project.</p>
 
 <p>I would gladly accept criticism, ideas or just thoughts on this particular scenario. Share, do coding and have fun!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[What Types Were Added, Moved or Became Public in .NET 4.5 Beta]]></title>
-    <link href="http://amanek.com/what-types-were-added-moved-or-became-public-in-net-4-5-beta/"/>
-    <updated>2012-04-21T03:00:06+03:00</updated>
-    <id>http://amanek.com/what-types-were-added-moved-or-became-public-in-net-4-5-beta</id>
-    <content type="html"><![CDATA[<p>There is a <a href="http://www.asp.net/vnext/overview/whitepapers/whats-new">whitepaper</a> about new features of ASP.NET 4.5, dozens of blog posts, videos from conferences, some tutorials and <a href="http://msdn.microsoft.com/en-us/library/ms171868(v=vs.110">MSDN</a>.aspx) topic describing overall changes. But why there are no reports about what types were actually added in .NET 4.5 Beta? Where are lists of "new types added to assembly N" or "types that became public in assembly N"? I understand that these lists are not very interesting and that it is more convenient to read descriptions of the new features. Nobody cares about details until they start working against you. And this is normal, right and ok, but now I have some free time and I want to share info about new types that were added or became public in .NET 4.5 comparing to .NET 4.0.</p>
-
-<p>Why I became so interested in this? Well, I accidentally found that <a href="http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.ifilterexpressionprovider(v=vs.110"><em>System.Web.DynamicData.IFilterExpressionProvider</em></a>.aspx) interface became public. Briefly, this allows to work with <a href="http://msdn.microsoft.com/en-us/library/system.web.ui.webcontrols.queryextender.aspx"><em>QueryExtender</em></a> and finally (I really wanted this since .NET 3.5) support its <a href="http://msdn.microsoft.com/en-us/library/system.web.dynamicdata.dynamicfilterexpression.aspx"><em>DynamicFilterExpression</em></a>. <del>Maybe on next weekend I'll post</del> I've already posted about <a href="http://amanek.com/?p=100">my experiments with IFilterExpressionProvider</a>, take a look if you are interested, and now lets return to the main topic.</p>
-
-<p>It is pretty simple to do compiled assemblies diff if you have <a href="http://www.ndepend.com/">NDepend</a> or similar tool, but what if you (like me) have no license? I started thinking to enumerate public types via reflection, but soon recalled that <a href="http://www.west-wind.com/weblog/posts/2012/Mar/13/NET-45-is-an-inplace-replacement-for-NET-40">.NET 4.5 beta replaces assemblies of .NET 4.0</a> during installation and Assembly.LoadFrom will not work. To overcome this I decided to parse and compare XML documentation that comes along with all .NET assemblies. Simple as that, every public type is documented and difference between old and new version of documentation will give me at least names of types.</p>
-
-<p>Ok, where to get xml documentation files for .NET 4.0? Binaries with xml docs of .NET 4.0 and 4.5 are located in <em><SysDrive>:\Program Files[(x86)]\Reference Assemblies\Microsoft\Framework.NETFramework</em>.</p>
-
-<p><img class="center" src="/images/posts/reference-assemblies-folder.png" title="Reference assemblies folder location" alt="Reference assemblies folder location"></p>
-
-<p>What I wanted is to get some statistics. There are 969 new public types in .NET 4.5. But it does not mean that those are completely new things, because it is not, it means that out of the box .NET 4.5 Beta has +969 new types comparing to .NET 4.0 and now there are totally 14971 public and documented types in .NET 4.5. Almost 15K only public types - that's incredibly huge number.</p>
-
-<p><img class="center" src="/images/posts/comparison-of-types-count-between-net40-and-net45.png" title="Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta" alt="Round Diagram showing types count of .NET 4.0 and .NET 4.5 Beta"></p>
-
-<p>Most of new types are located in <em>System.IdentityModel</em>, <em>System.Web</em> and <em>System.Windows.Controls.Ribbon</em> assemblies. Taking into account that <em>System.IdentityModel</em> is providing authentication and authorization features and <em>System.Windows.Controls.Ribbon</em> is UI library allowing use of Microsoft Ribbon for WPF, we can make a conclusion that vast amount of new changes is connected with web.</p>
-
-<p><img class="center" src="/images/posts/new-types-count-by-assembly.png" title="Histogram of new types count by asembly" alt="Histogram of new types count by asembly"></p>
-
-<p>But the most interesting thing was to examine minor changes and see that something new and really useful has been added. And I encourage you to look over list of new classes and I bet you will find something interesting.</p>
-
-<p>LINQPad script with which I did the documentation comparison is listed below. Excel report with some diagrams is also available <a href="https://docs.google.com/open?id=0B4z0as-FFbTdaUVlOXZBblctRDQ">online</a>.</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">void</span> <span class="nf">Main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;</span><span class="c1">// in case of non 64 bit system change &quot;Program Files (x86)&quot; to &quot;Program Files&quot;</span>
-</span><span class='line'><span class="kt">string</span> <span class="n">net40Dir</span> <span class="p">=</span> <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="kt">string</span> <span class="n">net45Dir</span> <span class="p">=</span> <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 1. Get all types from all xml doc files in both directories that are containing .NET assemblies and group them by assemblies</span>
-</span><span class='line'><span class="kt">var</span> <span class="n">net40Grouped</span> <span class="p">=</span> <span class="n">GetPublicTypesByAssembly</span><span class="p">(</span><span class="n">net40Dir</span><span class="p">);</span>
-</span><span class='line'><span class="kt">var</span> <span class="n">net45Grouped</span> <span class="p">=</span> <span class="n">GetPublicTypesByAssembly</span><span class="p">(</span><span class="n">net45Dir</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 2. Get list of newly added assemblies</span>
-</span><span class='line'><span class="kt">var</span> <span class="n">newAssemblies</span> <span class="p">=</span> <span class="n">net45Grouped</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">kvp</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">!</span><span class="n">net40Grouped</span><span class="p">.</span><span class="n">ContainsKey</span><span class="p">(</span><span class="n">kvp</span><span class="p">.</span><span class="n">Key</span><span class="p">)).</span><span class="n">ToList</span><span class="p">();</span>
-</span><span class='line'><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;New assemblies in .NET 4.5 Beta: (total count - {0})&quot;</span><span class="p">,</span> <span class="n">newAssemblies</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
-</span><span class='line'><span class="n">newAssemblies</span><span class="p">.</span><span class="n">ForEach</span><span class="p">(</span><span class="n">kvp</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">kvp</span><span class="p">.</span><span class="n">Key</span><span class="p">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 3. Get all assemblies that are not present in .NET 4.5 beta</span>
-</span><span class='line'><span class="kt">var</span> <span class="n">nonExistentAssemblies</span> <span class="p">=</span> <span class="n">net40Grouped</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">kvp</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">!</span><span class="n">net45Grouped</span><span class="p">.</span><span class="n">ContainsKey</span><span class="p">(</span><span class="n">kvp</span><span class="p">.</span><span class="n">Key</span><span class="p">)).</span><span class="n">ToList</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Assemblies that are not present in .NET 4.5 Beta folder comparing to .NET 4.0: (total count - {0})&quot;</span><span class="p">,</span> <span class="n">nonExistentAssemblies</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
-</span><span class='line'><span class="n">nonExistentAssemblies</span><span class="p">.</span><span class="n">ForEach</span><span class="p">(</span><span class="n">kvp</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">kvp</span><span class="p">.</span><span class="n">Key</span><span class="p">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 4. Get all new types in .NET 4.0 and .NET 4.5 Beta assemblies</span>
-</span><span class='line'><span class="kt">var</span> <span class="n">net40</span> <span class="p">=</span> <span class="n">net40Grouped</span><span class="p">.</span><span class="n">SelectMany</span><span class="p">(</span><span class="n">kvp</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">kvp</span><span class="p">.</span><span class="n">Value</span><span class="p">).</span><span class="n">ToList</span><span class="p">();</span>
-</span><span class='line'><span class="kt">var</span> <span class="n">net45</span> <span class="p">=</span> <span class="n">net45Grouped</span><span class="p">.</span><span class="n">SelectMany</span><span class="p">(</span><span class="n">kvp</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">kvp</span><span class="p">.</span><span class="n">Value</span><span class="p">).</span><span class="n">ToList</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">var</span> <span class="n">newTypes</span> <span class="p">=</span> <span class="n">net45</span><span class="p">.</span><span class="n">Except</span><span class="p">(</span><span class="n">net40</span><span class="p">).</span><span class="n">ToList</span><span class="p">();</span>
-</span><span class='line'><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Types count in .NET 4.0:|{0}&quot;</span><span class="p">,</span> <span class="n">net40</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
-</span><span class='line'><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Types count in .NET 4.5 Beta:|{0}&quot;</span><span class="p">,</span> <span class="n">net45</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
-</span><span class='line'><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;New types count in .NET 4.5 Beta comparing to .NET 4.0:|{0}&quot;</span><span class="p">,</span> <span class="n">newTypes</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 5. Get assemblies that are containing new types</span>
-</span><span class='line'><span class="kt">var</span> <span class="n">assembliesWithChanges</span> <span class="p">=</span> <span class="n">net45Grouped</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">kvp</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">newTypes</span><span class="p">.</span><span class="n">Any</span><span class="p">(</span><span class="n">type</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">kvp</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">ContainsValue</span><span class="p">(</span><span class="n">type</span><span class="p">.</span><span class="n">Value</span><span class="p">)));</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 6. Remove existent in .NET 4.0 types from assembliesWithChanges to get clear lists of new types grouped by assemblies</span>
-</span><span class='line'><span class="kt">var</span> <span class="n">newTypesGrouped</span> <span class="p">=</span> <span class="n">assembliesWithChanges</span>
-</span><span class='line'>    <span class="p">.</span><span class="n">ToDictionary</span><span class="p">(</span><span class="n">typesGroup</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">typesGroup</span><span class="p">.</span><span class="n">Key</span><span class="p">,</span> <span class="n">typesGroup</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">typesGroup</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">Except</span><span class="p">(</span><span class="n">net40</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">kvp</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">kvp</span><span class="p">.</span><span class="n">Value</span><span class="p">).</span><span class="n">ToList</span><span class="p">());</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;New types by assembly:&quot;</span><span class="p">);</span>
-</span><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">assemblyWithNewTypes</span> <span class="k">in</span> <span class="n">newTypesGrouped</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;{0}|{1}&quot;</span><span class="p">,</span> <span class="n">assemblyWithNewTypes</span><span class="p">.</span><span class="n">Key</span><span class="p">,</span> <span class="n">assemblyWithNewTypes</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">typeName</span> <span class="k">in</span> <span class="n">assemblyWithNewTypes</span><span class="p">.</span><span class="n">Value</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">typeName</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;}&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="n">Dictionary</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="kt">string</span><span class="p">,</span> <span class="n">Dictionary</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">string</span><span class="p">&gt;&gt;</span> <span class="n">GetPublicTypesByAssembly</span><span class="p">(</span><span class="kt">string</span> <span class="n">xmlDocsDirectory</span><span class="p">)</span>
-</span><span class='line'><span class="p">{&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;</span><span class="kt">string</span><span class="p">[]</span> <span class="n">xmlDocFiles</span> <span class="p">=</span> <span class="n">Directory</span><span class="p">.</span><span class="n">GetFiles</span><span class="p">(</span><span class="n">xmlDocsDirectory</span><span class="p">,</span> <span class="s">&quot;*.xml&quot;</span><span class="p">);</span>
-</span><span class='line'><span class="kt">var</span> <span class="n">result</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Dictionary</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="kt">string</span><span class="p">,</span> <span class="n">Dictionary</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">string</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;&amp;</span><span class="n">gt</span><span class="p">;();</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">xmlDoc</span> <span class="k">in</span> <span class="n">xmlDocFiles</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">var</span> <span class="n">root</span> <span class="p">=</span> <span class="n">XDocument</span><span class="p">.</span><span class="n">Load</span><span class="p">(</span><span class="n">xmlDoc</span><span class="p">).</span><span class="n">Root</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">root</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">var</span> <span class="n">members</span> <span class="p">=</span> <span class="n">root</span><span class="p">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&quot;members&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">members</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">var</span> <span class="n">typesByAssembly</span> <span class="p">=</span> <span class="n">members</span><span class="p">.</span><span class="n">Elements</span><span class="p">(</span><span class="s">&quot;member&quot;</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">e</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">e</span><span class="p">.</span><span class="n">Attribute</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">).</span><span class="n">Value</span><span class="p">.</span><span class="n">StartsWith</span><span class="p">(</span><span class="s">&quot;T:&quot;</span><span class="p">))</span>
-</span><span class='line'>        <span class="p">.</span><span class="n">ToDictionary</span><span class="p">(</span><span class="n">e</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">e</span><span class="p">.</span><span class="n">Attribute</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">).</span><span class="n">Value</span><span class="p">.</span><span class="n">GetHashCode</span><span class="p">(),</span> <span class="n">e</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">e</span><span class="p">.</span><span class="n">Attribute</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">).</span><span class="n">Value</span><span class="p">.</span><span class="n">Substring</span><span class="p">(</span><span class="m">2</span><span class="p">)</span> <span class="cm">/* T: */</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">result</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">Path</span><span class="p">.</span><span class="n">GetFileNameWithoutExtension</span><span class="p">(</span><span class="n">xmlDoc</span><span class="p">)</span> <span class="p">+</span> <span class="s">&quot;.dll&quot;</span><span class="p">,</span> <span class="n">typesByAssembly</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">return</span> <span class="n">result</span><span class="p">;</span>
-</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>And at the end here are links that will help a bit to embrace the changes of .NET 4.5 Beta:</p>
-
-<ul>
-<li><a href="http://msdn.microsoft.com/en-us/library/ms171868(v=vs.110).aspx">What's New in the .NET Framework 4.5 Beta</a></li>
-<li><a href="http://channel9.msdn.com/Events/BUILD/BUILD2011/TOOL-813T">Deep dive into the kernel of the .NET Framework</a></li>
-<li><a href="http://msdn.microsoft.com/en-us/library/bb822049(v=vs.110).aspx">.NET Framework Versions and Dependencies</a></li>
-<li><a href="http://msdn.microsoft.com/en-us/library/ee461502(v=vs.110).aspx">What's Obsolete in the .NET Framework</a></li>
-<li><a href="http://go.microsoft.com/fwlink/?LinkID=237569">List of known issues in .NET 4.5 Beta</a></li>
-</ul>
-
-
-<p>Happy digging in new .NET and don't hesitate sharing!</p>
 ]]></content>
   </entry>
   
