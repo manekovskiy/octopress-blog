@@ -12,11 +12,12 @@ tags:
 
 Maybe a year or something ago I switched from [Console2](http://sourceforge.net/projects/console/files/) to [ConEmu](http://code.google.com/p/conemu-maximus5/). One of the reasons behind this switch was a [Task](http://code.google.com/p/conemu-maximus5/wiki/SettingsTasks) concept that ConEmu offered. 
 
-I had only one problem with my tasks setup - I wanted to use Portable Git which is a part of GitHub for Windows installation. 
+There was only one problem with my tasks setup - I wanted to launch Portable Git which is a part of GitHub for Windows installation inside ConEmu. But launching the `git-cmd.bat` from ConEmu will create a new  window.
 
-As you may know Portable Git binaries are located in  `%LOCALAPPDATA%\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\`. The last part of directory name is a version string so it could change in future.
+> As you may know Portable Git binaries are located in  `%LOCALAPPDATA%\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\`
+> Note that the last part of the directory name is a version string so it could change in future.
 
-If you will try to launch the `git-cmd.bat` from ConEmu the interception will not work and you will see new window. The problem lies in the last line of the `git-cmd.bat` file:
+The problem lies in the last line of the `git-cmd.bat` file:
 
 {% codeblock git-cmd.bat lang:bat %}
 @rem Do not use "echo off" to not affect any child calls.
@@ -37,9 +38,11 @@ If you will try to launch the `git-cmd.bat` from ConEmu the interception will no
 @start %COMSPEC%
 {% endcodeblock %}
 
-Last line `@start %COMSPEC%` should be replaced with `@call %COMSPEC%` so ConEmu will be able to intercept the launch of the new shell.
+To fix the issue replace last line `@start %COMSPEC%` with `@call %COMSPEC%`.
 
-The difference between `start` and `call` commands is that `call` runs the batch script inside the same shell instance (allowing to change environment variables using `SET`) while `start` creates a new instance. Here is a little fragment from `start` and `call` help:
+> This change will **not** break the existing "Open in Git Shell" context action in GitHub application GUI.
+
+The difference between `start` and `call` commands is that `call` runs the batch script inside the same shell instance while `start` creates a new instance. Here is a little fragment from `start` and `call` help:
 
 {% codeblock %}
 C:\>call /?
@@ -49,6 +52,6 @@ C:\>start /?
 Starts a separate window to run a specified program or command.
 {% endcodeblock %}
 
-That's it! Now you are free to create and use a new task for ConEmu:
+That's it! Now following task for ConEmu will work as expected:
 
 `*cmd /k Title Git & "%LOCALAPPDATA%\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\git-cmd.bat"`
