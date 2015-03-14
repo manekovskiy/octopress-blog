@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Lifehacking | Alexander Manekovskiy]]></title>
+  <link href="http://amanek.com/blog/categories/lifehacking/atom.xml" rel="self"/>
+  <link href="http://amanek.com/"/>
+  <updated>2014-07-20T15:58:58+03:00</updated>
+  <id>http://amanek.com/</id>
+  <author>
+    <name><![CDATA[Alexander Manekovskiy]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Improve Your Reading Experience with Instapaper, Calibre and Command Line]]></title>
+    <link href="http://amanek.com/improve-your-reading-experience-with-instapaper-calibre-and-command-line/"/>
+    <updated>2012-11-17T15:39:17+02:00</updated>
+    <id>http://amanek.com/improve-your-reading-experience-with-instapaper-calibre-and-command-line</id>
+    <content type="html"><![CDATA[<p>After I read Scott Hanselman's post "<a href="http://www.hanselman.com/blog/InstapaperDeliveredToYourKindleChangesHowYouConsumeWebContentPlusIFTTTBlogsAndMore.aspx">Instapaper delivered to your Kindle changes how you consume web content - Plus IFTTT, blogs and more</a>" I bethought that I wanted to create an automated <a href="http://www.instapaper.com">Instapaper</a> to my e-book reader "contend delivery system". Now as I finished here is my little story.</p>
+
+<p><img class="right" src="/images/posts/lbookv5-ereader.jpg" title="LBook V5" alt="LBook V5">Almost a year ago when I started using <a href="http://www.instapaper.com">Instapaper</a> I realized that it would be great to grab all articles that were collected through the week, convert them to <a href="http://en.wikipedia.org/wiki/EPUB">EPUB</a> format and send electronic book to my e-book reader device. The only problem was in my device - <a href="http://lbook.ua/products/lbooks/v5/">Lbook V5</a>. Yes, it is totally outdated and old comparing to Kindle devices. It supports EPUB but does not have access to the Internet, so Instapaper <em>"download"</em> feature doesn't work for me.</p>
+
+<p>A few month ago I found <a href="http://calibre-ebook.com">Calibre</a> - free and open source e-book library management application. It helped me to organize and manage all my electronic library and I'm totally happy with it. Calibre has everything that could be possibly needed - scheduler support, custom news source with interactive setup and converters to various e-book formats. But what most interesting and important Calibre has command line <a href="http://manual.calibre-ebook.com/cli/ebook-convert.html"><em>ebook-convert.exe</em></a> utility which could be driven by <em>recipe files</em>. <a href="http://manual.calibre-ebook.com/news.html">Recipes in Calibre</a> are just Python scripts (with a bits of custom logic if it is needed to parse some specific news source).</p>
+
+<p>Below is simple Calibre recipe:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">AdvancedUserRecipe1352822143</span><span class="p">(</span><span class="n">BasicNewsRecipe</span><span class="p">):</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">title</span>          <span class="o">=</span> <span class="s">u&#39;Custom News Source&#39;</span>
+</span><span class='line'><span class="n">oldest_article</span> <span class="o">=</span> <span class="mi">7</span>
+</span><span class='line'><span class="n">max_articles_per_feed</span> <span class="o">=</span> <span class="mi">100</span>
+</span><span class='line'><span class="n">auto_cleanup</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">feeds</span> <span class="o">=</span> <span class="p">[(</span><span class="s">u&#39;The title of the feed&#39;</span><span class="p">,</span> <span class="s">u&#39;http://somesite.com/feed&#39;</span><span class="p">)]</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>This defines RSS feed source at <a href="http://somesite.com/feed">http://somesite.com/feed</a> and declares that there should be no more than 100 articles not older than 7 days. If we'll use it with <em>ebook-convert</em> utility, it will automatically fetch news from specified feed and will generate e-book file. The command line to generate book is following:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bat'><span class='line'>ebook-convert.exe input_file output_file [options]
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>When <em>input_file</em> parameter is recipe <em>ebook-convert</em> runs it and then produces e-book in specified by <em>output_file</em> parameter format. Recipe should populate <em>feeds</em> dictionary so <em>ebook-convert</em> will know what XML feeds should be processed. Options could accept two parameters - <em>username</em> and <em>password</em> (correct me if I'm wrong but I didn't found any information about possibility to use other/custom parameters). That was a brief introduction to Calibre recipe files. Now here is the problem.</p>
+
+<p>Calibre has built in <a href="http://khromov.wordpress.com/projects/instapaper-calibre-recipe/">Instapaper recipe</a>. This recipe was created by <a href="http://khromov.wordpress.com">Stanislav Khromov</a> with <a href="https://bitbucket.org/lack">Jim Ramsay</a>. Recipe has two versions - stable (it is part of current Calibre release) and development version, both could be found on <a href="https://bitbucket.org/khromov/calibre-instapaper">BitBucket</a>.</p>
+
+<p>The development version of Instapaper recipe does almost what I want, but I needed to extend its functionality including:</p>
+
+<ul>
+<li>Grab articles from all pages inside one directory (yes, sometimes it happens, when I'm not reading Instapaper articles for a few weeks).</li>
+<li>Merge articles from certain directories into one book.</li>
+<li>Archive all items in directories. This actually implemented in development version, but instead of using <em>"Archive All..."</em> form recipe emulates clicking on <em>"Move to Archive"</em> button which takes a lot of time to process all items.</li>
+</ul>
+
+
+<p>At first I decided to extend development version of the mentioned above recipe but after I wasted an hour trying to beat the Python I realized that I can write command line utility in .NET (where I feel myself very comfortable) which will do whatever I want and I will save a ton of time (I'm definitely not going to learn Python just to change/fix one Calibre recipe :)). So here is <a href="https://github.com/manekovskiy/InstaFeed">InstaFeed</a> - little command line utility that can enumerate names of Instapaper directories, generate single RSS feed for specified list of directories and archive them all at once. It uses two awesome open-source projects - <a href="http://htmlagilitypack.codeplex.com/">Html Agility Pack</a> and <a href="http://commandline.codeplex.com/">Command Line Parser Library</a>.</p>
+
+<blockquote><p>Note: While this utility parses Instapaper HTML and produces RSS you can probably bypass "RSS limits" of Instapaper non-subscription accounts. But I encourage you to support this service. Cheating is not good at all, please respect <a href="http://www.marco.org/">Marco Arment's</a> work and efforts he put in this awesome service.</p></blockquote>
+
+<p>Having the command line utility that produces locally stored RSS feeds the only thing that remains is to create simple Calibre Recipe for <em>ebook-convert</em> utility. The recipe should be parameterized with path to RSS feed generated by <em>InstaFeed</em>. Here is the code:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">LocalRssFeed</span><span class="p">(</span><span class="n">BasicNewsRecipe</span><span class="p">):</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">title</span>        <span class="o">=</span> <span class="s">u&#39;local_rss_feed&#39;</span>
+</span><span class='line'><span class="n">oldest_article</span>    <span class="o">=</span> <span class="mi">365</span>
+</span><span class='line'><span class="n">max_articles_per_feed</span>    <span class="o">=</span> <span class="mi">100</span>
+</span><span class='line'><span class="n">auto_cleanup</span>    <span class="o">=</span> <span class="bp">True</span>
+</span><span class='line'><span class="n">feeds</span> <span class="o">=</span> <span class="bp">None</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_feeds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># little hack that allows passing path to local RSS feed as a parameter via command line</span>
+</span><span class='line'>    <span class="bp">self</span><span class="o">.</span><span class="n">feeds</span> <span class="o">=</span> <span class="p">[</span><span class="s">u&#39;Instapaper Unread&#39;</span><span class="p">,</span> <span class="s">&#39;file:///&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">feeds</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>All custom recipes should be stored within <em><Calibre Installation Directory>Calibre Settings\custom_recipes</em> folder.</p>
+
+<blockquote><p>Note: Everything in this post applies to Portable 0.8.65.0 version of Calibre for Microsoft Windows. I have no idea whether it will work for other versions or installation variants.</p></blockquote>
+
+<p>Below is sources for batch file that produces RSS feed from Read Later Instapaper directory and then generates e-book in EPUB format at <em>C:\Temp. </em>I run this batch weekly via Windows Task Scheduler.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='bat'><span class='line'><span class="p">@</span><span class="k">echo</span> <span class="k">off</span>
+</span><span class='line'><span class="k">setlocal</span> EnableDelayedExpansion
+</span><span class='line'><span class="k">setlocal</span> EnableExtensions&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;<span class="c">:: change path to your calibre and instafeed executables</span>
+</span><span class='line'><span class="k">set</span> <span class="p">&lt;</span><span class="n">em</span><span class="p">&gt;</span><span class="n">instafeeddir</span><span class="o">=</span>F:\util\instafeed\
+</span><span class='line'><span class="k">set</span> &lt;<span class="n">/em&gt;calibredir=F:\util\Calibre</span> Portable\&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;<span class="c">:: set output directory and naming convention here</span>
+</span><span class='line'><span class="k">set</span> <span class="nv">filename</span><span class="o">=</span>C:\Temp[<span class="nv">%date:</span><span class="n">/=%]_instapaper_unread_articles</span>
+</span><span class='line'><span class="k">set</span> <span class="nv">rssfile</span><span class="o">=</span><span class="nv">%filename%</span>.xml
+</span><span class='line'><span class="k">set</span> <span class="nv">ebookfile</span><span class="o">=</span><span class="nv">%filename%</span>.epub&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;%<span class="p">&lt;</span><span class="n">em</span><span class="p">&gt;</span><span class="n">instafeeddir</span><span class="nv">%instafeed</span>.exe -c rss -u <span class="p">&lt;</span><span class="n">instapaper_username</span>&gt; -p <span class="p">&lt;</span><span class="n">instapaper</span> password&gt; -d <span class="s2">&quot;Read Later&quot;</span> -o <span class="s2">&quot;%rssfile%&quot;</span>
+</span><span class='line'>%&lt;<span class="n">/em&gt;calibredir%\Calibre\ebook-convert.exe</span> <span class="s2">&quot;%_calibredir%\Calibre Settings\custom_recipes\local_rss_feed.recipe&quot;</span> <span class="s2">&quot;%ebookfile%&quot;</span> --username<span class="o">=</span><span class="s2">&quot;%rssfile%&quot;</span>&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="n">endlocal</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>I had fun writing <a href="https://github.com/manekovskiy/InstaFeed">InstaFeed</a> and digging in Calibre recipes and hope that someone will benefit from my experience. What else could be said? Read with convenience and have fun!</p>
+]]></content>
+  </entry>
+  
+</feed>
