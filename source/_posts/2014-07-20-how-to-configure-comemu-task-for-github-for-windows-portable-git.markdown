@@ -10,9 +10,6 @@ tags:
 - Git
 ---
 
-> **2/19/2015 Update:** I've decided that it would be good to propose the change described in this post to the [msysgit](https://github.com/msysgit/msysgit) project. And today it was accepted and merged. 
-> It took me only 7 months to come up with idea that the change described below could be included into the official release of the software that I'm using on a daily basis :)
-
 Maybe a year or something ago I switched from [Console2](http://sourceforge.net/projects/console/files/) to [ConEmu](http://code.google.com/p/conemu-maximus5/). One of the reasons behind this switch was a [Task](http://code.google.com/p/conemu-maximus5/wiki/SettingsTasks) concept that ConEmu offered. 
 
 There was only one problem with my tasks setup - I wanted to launch Portable Git which is a part of GitHub for Windows installation inside ConEmu. But launching the `git-cmd.bat` from ConEmu will create a new  window.
