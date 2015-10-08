@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates"
-date: 2015-05-07 11:05
+date: 2015-10-08 11:05
 comments: true
 categories:
 - Development
