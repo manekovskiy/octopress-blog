@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Why Your Team Should Do A Code Review On A Regular Basis"
+title: "Why Your Team Should Do a Code Review on a Regular Basis"
 date: 2015-10-21 19:38
 comments: true
 categories: Development

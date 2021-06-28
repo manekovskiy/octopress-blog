@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "How To Configure ComEmu Task For GitHub For Windows Portable Git"
+title: "How to Configure ComEmu Task for GitHub for Windows Portable Git"
 date: 2014-07-20 11:58
 comments: true
 categories:

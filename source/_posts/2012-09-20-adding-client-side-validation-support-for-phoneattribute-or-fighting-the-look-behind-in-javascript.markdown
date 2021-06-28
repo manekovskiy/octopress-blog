@@ -3,8 +3,7 @@ comments: true
 date: 2012-09-20 19:22:55
 layout: post
 slug: adding-client-side-validation-support-for-phoneattribute-or-fighting-the-look-behind-in-javascript
-title: Adding Client-Side Validation Support for PhoneAttribute or Fighting the Lookbehind
-  in JavaScript
+title: Adding Client-Side Validation Support for PhoneAttribute or Fighting the Lookbehind in JavaScript
 wordpress_id: 174
 categories:
 - Development

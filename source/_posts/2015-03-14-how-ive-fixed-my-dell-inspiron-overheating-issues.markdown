@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "How I've fixed my Dell Inspiron overheating issues"
+title: "How I've Fixed My Dell Inspiron Overheating Issues"
 date: 2015-03-14 19:37
 comments: true
 categories:

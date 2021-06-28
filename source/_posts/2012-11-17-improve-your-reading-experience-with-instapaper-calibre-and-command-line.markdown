@@ -3,7 +3,7 @@ comments: true
 date: 2012-11-17 13:39:17
 layout: post
 slug: improve-your-reading-experience-with-instapaper-calibre-and-command-line
-title: Improve Your Reading Experience with Instapaper, Calibre and Command Line
+title: Improve Your Reading Experience With Instapaper, Calibre and Command Line
 wordpress_id: 207
 categories:
 - Lifehacking
