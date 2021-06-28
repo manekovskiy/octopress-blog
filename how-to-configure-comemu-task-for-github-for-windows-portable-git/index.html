@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How to Configure ComEmu Task for GitHub for Windows Portable Git - Alexander Manekovskiy</title>
+  <meta name="author" content="Alexander Manekovskiy">
+
+  
+  <meta name="description" content="2/19/2015 Update: I&#8217;ve decided that it would be good to propose the change described in this post to the msysgit project. And today it was &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://amanek.com/how-to-configure-comemu-task-for-github-for-windows-portable-git/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/feed/" rel="alternate" title="Alexander Manekovskiy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28104381-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Alexander Manekovskiy</a></h1>
+  
+    <h2>Automating Automation</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/feed/" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:amanek.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How to Configure ComEmu Task for GitHub for Windows Portable Git</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-20T11:58:00-07:00" pubdate data-updated="true">Jul 20<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p><strong>2/19/2015 Update:</strong> I&#8217;ve decided that it would be good to propose the change described in this post to the <a href="https://github.com/msysgit/msysgit">msysgit</a> project. And today it was accepted and merged.
+It took me only 7 months to come up with idea that the change described below could be included into the official release of the software that I&#8217;m using on a daily basis :)</p></blockquote>
+
+<p>Maybe a year or something ago I switched from <a href="http://sourceforge.net/projects/console/files/">Console2</a> to <a href="http://code.google.com/p/conemu-maximus5/">ConEmu</a>. One of the reasons behind this switch was a <a href="http://code.google.com/p/conemu-maximus5/wiki/SettingsTasks">Task</a> concept that ConEmu offered.</p>
+
+<p>There was only one problem with my tasks setup - I wanted to launch Portable Git which is a part of GitHub for Windows installation inside ConEmu. But launching the <code>git-cmd.bat</code> from ConEmu will create a new  window.</p>
+
+<blockquote><p>As you may know Portable Git binaries are located in  <code>%LOCALAPPDATA%\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\</code>
+Note that the last part of the directory name is a version string so it could change in future.</p></blockquote>
+
+<p>The problem lies in the last line of the <code>git-cmd.bat</code> file:</p>
+
+<figure class='code'><figcaption><span>git-cmd.bat </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='bat'><span class='line'><span class="p">@</span>rem <span class="k">Do</span> not use <span class="s2">&quot;echo off&quot;</span> to not affect any child calls.
+</span><span class='line'><span class="p">@</span><span class="k">setlocal</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">@</span>rem Get the abolute path to the current directory<span class="p">,</span> which is assumed to be the
+</span><span class='line'><span class="p">@</span>rem Git installation root.
+</span><span class='line'><span class="p">@</span><span class="k">for</span> <span class="n">/F</span> <span class="s2">&quot;delims=&quot;</span> <span class="nv">%%I</span> in (<span class="s2">&quot;%~dp0&quot;</span>) <span class="k">do</span> @<span class="k">set</span> <span class="nv">git_install_root</span><span class="o">=</span><span class="nv">%%~fI</span>
+</span><span class='line'><span class="p">@</span><span class="k">set</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">%git_install_root%</span>\bin;<span class="nv">%git_install_root%</span>\mingw\bin;<span class="nv">%git_install_root%</span>\cmd;<span class="nv">%PATH%</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">@</span><span class="k">if</span> not <span class="k">exist</span> <span class="s2">&quot;%HOME%&quot;</span> @<span class="k">set</span> <span class="nv">HOME</span><span class="o">=</span><span class="nv">%HOMEDRIVE%%HOMEPATH%</span>
+</span><span class='line'><span class="p">@</span><span class="k">if</span> not <span class="k">exist</span> <span class="s2">&quot;%HOME%&quot;</span> @<span class="k">set</span> <span class="nv">HOME</span><span class="o">=</span><span class="nv">%USERPROFILE%</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">@</span><span class="k">set</span> <span class="nv">PLINK_PROTOCOL</span><span class="o">=</span>ssh
+</span><span class='line'><span class="p">@</span><span class="k">if</span> not <span class="k">defined</span> TERM <span class="k">set</span> <span class="nv">TERM</span><span class="o">=</span>msys
+</span><span class='line'>
+</span><span class='line'><span class="p">@</span><span class="k">cd</span> <span class="nv">%HOME%</span>
+</span><span class='line'><span class="p">@</span>start <span class="nv">%COMSPEC%</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To fix the issue replace last line <code>@start %COMSPEC%</code> with <code>@call %COMSPEC%</code>.</p>
+
+<blockquote><p>This change will <strong>not</strong> break the existing &#8220;Open in Git Shell&#8221; context action in GitHub application GUI.</p></blockquote>
+
+<p>The difference between <code>start</code> and <code>call</code> commands is that <code>call</code> runs the batch script inside the same shell instance while <code>start</code> creates a new instance. Here is a little fragment from <code>start</code> and <code>call</code> help:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>C:\>call /?
+</span><span class='line'>Calls one batch program from another.
+</span><span class='line'>
+</span><span class='line'>C:\>start /?
+</span><span class='line'>Starts a separate window to run a specified program or command.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&#8217;s it! Now following task for ConEmu will work as expected:</p>
+
+<p><code>*cmd /k Title Git &amp; "%LOCALAPPDATA%\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\git-cmd.bat"</code></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Alexander Manekovskiy</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-20T11:58:00-07:00" pubdate data-updated="true">Jul 20<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/development/'>Development</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://amanek.com/how-to-configure-comemu-task-for-github-for-windows-portable-git/" data-via="amanekdev" data-counturl="http://amanek.com/how-to-configure-comemu-task-for-github-for-windows-portable-git/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/automate-your-dev-environment-setup/" title="Previous Post: Automate your dev environment setup">&laquo; Automate your dev environment setup</a>
+      
+      
+        <a class="basic-alignment right" href="/how-ive-fixed-my-dell-inspiron-overheating-issues/" title="Next Post: How I've Fixed My Dell Inspiron Overheating Issues">How I've Fixed My Dell Inspiron Overheating Issues &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/better-command-line-experience-on-windows-with-conemu-clink-and-oh-my-posh/">Better Command Line Experience on Windows With ConEmu, Clink and Oh My Posh</a>
+      </li>
+    
+      <li class="post">
+        <a href="/why-your-team-should-do-a-code-review-on-a-regular-basis/">Why Your Team Should Do a Code Review on a Regular Basis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/">Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-ive-fixed-my-dell-inspiron-overheating-issues/">How I've Fixed My Dell Inspiron Overheating Issues</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to-configure-comemu-task-for-github-for-windows-portable-git/">How to Configure ComEmu Task for GitHub for Windows Portable Git</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/manekovskiy">@manekovskiy</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'manekovskiy',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("amanekdev", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/amanekdev" class="twitter-follow-button" data-show-count="false">Follow @amanekdev</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2021 - Alexander Manekovskiy -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'amanek';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://amanek.com/how-to-configure-comemu-task-for-github-for-windows-portable-git/';
+        var disqus_url = 'http://amanek.com/how-to-configure-comemu-task-for-github-for-windows-portable-git/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

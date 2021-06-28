@@ -1,0 +1,1070 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Development | Alexander Manekovskiy]]></title>
+  <link href="http://amanek.com/blog/categories/development/atom.xml" rel="self"/>
+  <link href="http://amanek.com/"/>
+  <updated>2021-06-28T00:20:12-07:00</updated>
+  <id>http://amanek.com/</id>
+  <author>
+    <name><![CDATA[Alexander Manekovskiy]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Better Command Line Experience on Windows With ConEmu, Clink and Oh My Posh]]></title>
+    <link href="http://amanek.com/better-command-line-experience-on-windows-with-conemu-clink-and-oh-my-posh/"/>
+    <updated>2021-06-20T16:11:00-07:00</updated>
+    <id>http://amanek.com/better-command-line-experience-on-windows-with-conemu-clink-and-oh-my-posh</id>
+    <content type="html"><![CDATA[<p>Recently, I stumbled upon Brad Wilson’s post - <a href="https://bradwilson.io/blog/prompt/powershell">Anatomy of a Prompt (PowerShell)</a> and decided that I also want to have a fancy-looking command prompt for a cmd.exe. Fanciness includes but not limited to:</p>
+
+<ul>
+<li>A custom prompt that display computer name and current user, git status, and features pretty looking powerlines</li>
+<li>Persistent commands history</li>
+<li>Command completion, aliases/macros support + their expansion on demand</li>
+</ul>
+
+
+<p>This is what my console looks like after all modifications:</p>
+
+<p><img class="center" src="/images/posts/awesome-looking-command-line-prompt.gif" title="Awesome looking command line prompt" alt="Awesome looking command line prompt"></p>
+
+<p>At first, I was planning to give an overview of my current setup, but then the description grew, and now I have a detailed guide about how to improve the look and feel of the CMD.</p>
+
+<p>Table of contents:
+ - <a href="">Set Command Aliases/Macros For CMD.exe In ConEmu</a>
+ - <a href="">Integrate Clink</a>
+   - <a href="">Configure Clink Completions</a>
+ - <a href="">Change The Prompt With Oh My Posh</a>
+ - <a href="">Conclusions</a></p>
+
+<h2>Set Command Aliases/Macros For CMD.exe In ConEmu</h2>
+
+<p>For many years I have been a loyal and happy user of ConEmu. This tool is great - it is reliable, fast, and highly configurable. ConEmu has a portable version, so setup replication is not a problem - I keep it in the ever-growing list of utilities on my cloud storage.</p>
+
+<p>One of the issues with cmd is the absence of persistent user-scoped command aliases or macros. Yes, there is a <a href="https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/doskey">DOSKEY</a> command, but you are required to integrate its invocation into your cmd startup. To get more control over my macros setup, I wrote a utility (<a href="https://github.com/manekovskiy/aliaser">GitHub - manekovskiy/aliaser</a>) that pulls a list of command aliases from the file and sets them up for the current process.</p>
+
+<blockquote><p>ConEmu provides native support for command aliases; refer to <a href="https://conemu.github.io/en/SettingsEnvironment.html">ConEmu | Settings › Environment</a> page for more details.</p></blockquote>
+
+<p>My setup is following:</p>
+
+<ul>
+<li>Put compiled aliaser.exe and a file containing aliases (my list - <a href="https://gist.github.com/manekovskiy/57e98863e0b04e7ce3b9d3346486b3aa">GitHub - aliases.txt</a>) to the <code>%ConEmuBaseDir%\Scripts</code> folder.</li>
+<li>Add a batch file containing the invocation of the aliaser utility to the <code>%ConEmuBaseDir%\Scripts</code> folder.</li>
+</ul>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>setup-aliases.cmd </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bat'><span class='line'><span class="p">@</span><span class="k">echo</span> <span class="k">off</span>
+</span><span class='line'><span class="k">call</span> <span class="s2">&quot;%~dp0aliaser.exe&quot;</span> -f <span class="s2">&quot;%~dp0aliases.txt&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li>Update ConEmu CMD tasks to include setup-aliases.cmd invocation. Example: <code>cmd.exe /k setup-aliases.cmd</code></li>
+</ul>
+
+
+<blockquote><p>There is no need to provide a path to the batch file because the default ConeEmu setup adds a <code>%ConEmuBaseDir%\Scripts</code> folder to the PATH environment variable.</p></blockquote>
+
+<h2>Integrate Clink</h2>
+
+<p>Another great addition to the cmd is a Clink - it augments the command line with many great features like persistent history, environment variable names completion, scriptable keybindings, and command completions.</p>
+
+<p>Again, ConEmu provides integration with Clink (see <a href="https://conemu.github.io/en/TabCompletion.html#ConEmu_and_clink">ConEmu | cmd.exe and clink</a>). It is important to note that ConEmu works well only with the current active fork of the clink project - <a href="https://github.com/chrisant996/clink">chrisant996/clink</a>.</p>
+
+<p>In short, to install and enable Clink in ConEmu, you should extract the contents of the clink release archive into the <code>%ConEmuBaseDir%\clink</code> and check the “Use Clink in prompt” under the Features settings section.</p>
+
+<p><img class="center" src="/images/posts/conemu-settings-features-use-clink-in-prompt.png" title="Enable &quot;Use Clink in prompt&quot; configuration setting" alt="Enable &quot;Use Clink in prompt&quot; configuration setting"></p>
+
+<p>An indicator of successful integration is the text mentioning the Clink version and its authors, similar to the following:</p>
+
+<pre><code>Clink v1.2.9.329839
+Copyright (c) 2012-2018 Martin Ridgers
+Portions Copyright (c) 2020-2021 Christopher Antos
+https://github.com/chrisant996/clink
+</code></pre>
+
+<h3>Configure Clink Completions</h3>
+
+<p>One of the most powerful features of the Clink is that it is scriptable through Lua. It is possible to add custom command completion logic, add or change the keybindings or even modify the look of the prompt.</p>
+
+<p>On startup, Clink looks for a clink.lua script, which is an entry point for all extension registrations. There are a couple of places where Clink tries to locate the file, one of them is the <code>%CLINK_INPUTRC%</code> folder. There should be an empty <code>clink.lua</code> file in the <code>%ConEmuBaseDir%\clink</code> folder (comes as a part of the Clink release). To make it visible to ConEmu and Clink, add a <code>CLINK_INPUTRC</code> variable to the ConEmu Environment configuration: <code>set CLINK_INPUTRC=%ConEmuBaseDir%\clink</code>.</p>
+
+<p><img class="center" src="/images/posts/conemu-settings-startup-environment-add-CLINK_INPUTRC-variable.png" title="Add &quot;CLINK_INPUTRC&quot; variable to the ConEmu Startup settings" alt="Add &quot;CLINK_INPUTRC&quot; variable to the ConEmu Startup settings"></p>
+
+<p>Not so long ago, I found that Cmder (a quite opinionated build of ConEmu) distribution already contains Clink and completion files for all super popular command-line utilities. A little bit of search showed that completions in Cmder come from the <a href="https://github.com/vladimir-kotikov/clink-completions">GitHub - vladimir-kotikov/clink-completions</a> repository.</p>
+
+<p>Download the latest available clink-completions release and unpack it in the <code>%ConEmuBaseDir%\clink\profile</code>. I decided to drop the version number from the clink-completions folder name, so I would not have to update the registration script every time I update the completions. I also made the registration of the Clink extensions maximally universal. I went with a convention-based approach to files and folders organization:</p>
+
+<ul>
+<li>Each Clink extension should be put into a separate folder under <code>%ConEmuBaseDir%\clink\profile</code>. This ensures proper grouping and logical separation of scripts.</li>
+<li>Each Clink extension group should define a registration script under <code>%ConEmuBaseDir%\clink\profile</code>.</li>
+<li>Code in <code>clink.lua</code> should locate all registration scripts under <code>%ConEmuBaseDir%\clink\profile</code> and unconditionally execute them.</li>
+</ul>
+
+
+<p>Example folder structure:</p>
+
+<pre><code>📂 %ConEmuBaseDir%\clink
+  📂 profile
+    📁 clink-completions
+    📁 extension-x
+    📁 oh-my-posh
+    📄 clink-competions.lua
+    📄 oh-my-posh.lua
+    📄 extension-x.lua
+  📄 clink.lua
+</code></pre>
+
+<p>The registration script is simple:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>clink.lua </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="c1">-- clink.lua&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="c1">-- Globals</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="n">clink_dir</span> <span class="o">=</span> <span class="n">clink</span><span class="p">.</span><span class="n">get_env</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">ConEmuBaseDir&#39;</span><span class="p">)</span><span class="o">..</span><span class="s1">&#39;</span><span class="s">/clink/&#39;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">strong</span><span class="o">&gt;</span><span class="n">clink_profile_dir</span> <span class="o">=</span> <span class="n">clink</span><span class="p">.</span><span class="n">get_env</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">ConEmuBaseDir&#39;</span><span class="p">)</span><span class="o">..</span><span class="s1">&#39;</span><span class="s">/clink/profile/&#39;</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="c1">-- Load profile scripts</span>
+</span><span class='line'><span class="k">for</span> <span class="n">_</span><span class="p">,</span><span class="n">lua_module</span> <span class="k">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">clink</span><span class="p">.</span><span class="n">find_files</span><span class="p">(</span><span class="n">__clink_profile_dir</span><span class="o">..</span><span class="s1">&#39;</span><span class="s">*.lua&#39;</span><span class="p">))</span> <span class="k">do</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="kd">local</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">__clink_profile_dir</span><span class="o">..</span><span class="n">lua_module</span>
+</span><span class='line'><span class="c1">-- use dofile instead of require because require caches loaded modules</span>
+</span><span class='line'><span class="c1">-- so config reloading using Alt-Q won&#39;t reload updated modules.</span>
+</span><span class='line'><span class="nb">dofile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>The clink-completions registration script is also a barebone minimum. I extracted it from the Cmder's <a href="https://github.com/cmderdev/cmder/blob/946f929eafe0f9017d1f3cb9f8d144c7f61064e0/vendor/clink.lua#L505">clink.lua</a>:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>clink-completions.lua </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="c1">-- clink-completions.lua</span>
+</span><span class='line'><span class="c1">-- Completions scripts taken from from https://github.com/vladimir-kotikov/clink-completions</span>
+</span><span class='line'><span class="c1">-- Last updated on 6/5/2021. Version 0.3.7.&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kd">local</span> <span class="n">completions_dir</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">_clink_profile_dir</span><span class="o">..</span><span class="s1">&#39;</span><span class="s">clink-completions/&#39;</span>
+</span><span class='line'><span class="c1">-- Execute &#39;.init.lua&#39; first to ensure package.path is set properly</span>
+</span><span class='line'><span class="nb">dofile</span><span class="p">(</span><span class="n">completions_dir</span><span class="o">..</span><span class="s1">&#39;</span><span class="s">.init.lua&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">for</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">,</span><span class="n">lua_module</span> <span class="k">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">clink</span><span class="p">.</span><span class="n">find_files</span><span class="p">(</span><span class="n">completions_dir</span><span class="o">..</span><span class="s1">&#39;</span><span class="s">*.lua&#39;</span><span class="p">))</span> <span class="k">do</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1">-- Skip files that starts with _. This could be useful if some files should be ignored</span>
+</span><span class='line'><span class="k">if</span> <span class="ow">not</span> <span class="nb">string.match</span><span class="p">(</span><span class="n">lua_module</span><span class="p">,</span> <span class="s1">&#39;</span><span class="s">^_.*&#39;</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">completions_dir</span><span class="o">..</span><span class="n">lua_module</span>
+</span><span class='line'>    <span class="c1">-- use dofile instead of require because require caches loaded modules</span>
+</span><span class='line'>    <span class="c1">-- so config reloading using Alt-Q won&#39;t reload updated modules.</span>
+</span><span class='line'>    <span class="nb">dofile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>Change The Prompt With Oh My Posh</h2>
+
+<p>If you never heard of it before, <a href="https://ohmyposh.dev/">Oh My Posh</a> is a command prompt theme engine. It was first created for PowerShell, but now, in V3, Oh My Posh became cross-platform with a universal configuration format, which means that you can use it in any shell or OS.</p>
+
+<blockquote><p>ConEmu distribution contains an initialization script file - CmdInit.cmd, which can display the current git branch and/or current user name in the command prompt (see <a href="https://conemu.github.io/en/CmdPrompt.html">ConEmu | Configuring Cmd Prompt</a> for more details).</p></blockquote>
+
+<p>When it comes to CMD, Oh My Posh could be integrated through Clink. Clink has a concept of <a href="https://chrisant996.github.io/clink/clink.html#customising-the-prompt">prompt filters</a> - code that executes when the prompt is being rendered.</p>
+
+<p>Installation and integration with Clink steps are very straightforward:</p>
+
+<ol>
+<li>Download the latest release</li>
+<li>Move the executable to the <code>%ConEmuBaseDir%\clink\profile\oh-my-posh\bin</code> folder</li>
+<li>Add oh-my-posh.lua script to the <code>%ConEmuBaseDir%\clink\profile</code> folder</li>
+<li>Create a theme file (I named mine amanek.omp.json)</li>
+</ol>
+
+
+<p>Following is the expected folder structure:</p>
+
+<pre><code>📂 %ConEmuBaseDir%\clink
+  📂 profile
+    📂 oh-my-posh
+      📂 bin
+        📦 oh-my-posh.exe &lt;-- note, that I renamed the executable file to oh-my-posh.exe.
+      🎨 amanek.omp.json
+    📄 oh-my-posh.lua
+  📄 clink.lua
+</code></pre>
+
+<p>The registration script was inspired by the Clink project readme file:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>oh-my-posh.lua </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="c1">-- oh-my-posh.lua</span>
+</span><span class='line'><span class="c1">-- Taken from https://github.com/chrisant996/clink/blob/master/docs/clink.md#oh-my-posh&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kd">local</span> <span class="n">ohmyposh_dir</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="n">clink_profile_dir</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">oh-my-posh/&quot;</span>
+</span><span class='line'><span class="kd">local</span> <span class="n">ohmyposh_exe</span> <span class="o">=</span> <span class="o">&lt;/</span><span class="n">strong</span><span class="o">&gt;</span><span class="n">clink_profile_dir</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">oh-my-posh/bin/oh-my-posh.exe&quot;</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kd">local</span> <span class="n">ohmyposh_prompt</span> <span class="o">=</span> <span class="n">clink</span><span class="p">.</span><span class="n">promptfilter</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'><span class="k">function</span> <span class="nf">ohmyposh_prompt</span><span class="p">:</span><span class="n">filter</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">prompt</span> <span class="o">=</span> <span class="nb">io.popen</span><span class="p">(</span><span class="n">ohmyposh_exe</span><span class="o">..</span><span class="s2">&quot;</span><span class="s"> --config &quot;</span><span class="o">..</span><span class="n">ohmyposh_dir</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">amanek.omp.json --shell universal&quot;</span><span class="p">):</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">*a&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">return</span> <span class="n">prompt</span><span class="p">,</span> <span class="kc">false</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>The Oh My Posh comes with a wide variety of prebuilt themes. The customization process is well described in the <a href="https://ohmyposh.dev/docs/windows#override-the-theme-settings">Override the theme settings</a> documentation section.</p>
+
+<p>Here is the link to my theme file - <a href="https://gist.github.com/manekovskiy/70698cc9309a833582bb750221c49e04">GitHub - amanek.omp.json</a>. It includes the following sections:</p>
+
+<ul>
+<li>Indicator of elevated prompt. Displays a lightning symbol if my console instance is running as Administrator.</li>
+<li>Logged-in user name and computer name. I frequently connect to different machines over RDP, so it is good to know where am I right now 😊</li>
+<li>Location path</li>
+<li>Git status</li>
+</ul>
+
+
+<p>One of the issues I encountered during the command prompt customization process is that ConEmu remaps console colors and replaces them with its own color scheme:</p>
+
+<p><img class="center" src="/images/posts/conemu-features-colors.png" title="ConEmu Colors configuration section" alt="ConEmu Colors configuration section"></p>
+
+<p>As you can see, ConEmu uses a color scheme based on the 16 ANSI colors. Fortunately, in Oh My Posh, it is also possible to specify color using one of the well-known 16 color names (see <a href="https://ohmyposh.dev/docs/configure/#standard-colors">standard colors documentation section</a>). Here is the “ConEmu color number to Oh My Posh color name” conversion table:</p>
+
+<table>
+<thead>
+<tr>
+<th><strong>Number</strong>  </th>
+<th> <strong>Color</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0           </td>
+<td> black</td>
+</tr>
+<tr>
+<td>1/4         </td>
+<td> blue</td>
+</tr>
+<tr>
+<td>2           </td>
+<td> green</td>
+</tr>
+<tr>
+<td>3/6         </td>
+<td> cyan</td>
+</tr>
+<tr>
+<td>4/1         </td>
+<td> red</td>
+</tr>
+<tr>
+<td>5           </td>
+<td> magenta</td>
+</tr>
+<tr>
+<td>6/3         </td>
+<td> yellow</td>
+</tr>
+<tr>
+<td>7           </td>
+<td> white</td>
+</tr>
+<tr>
+<td>8           </td>
+<td> darkGray</td>
+</tr>
+<tr>
+<td>9           </td>
+<td> lightBlue</td>
+</tr>
+<tr>
+<td>10          </td>
+<td> lightGreen</td>
+</tr>
+<tr>
+<td>11          </td>
+<td> lightCyan</td>
+</tr>
+<tr>
+<td>12          </td>
+<td> lightRed</td>
+</tr>
+<tr>
+<td>13          </td>
+<td> lightMagenta</td>
+</tr>
+<tr>
+<td>14          </td>
+<td> lightYellow</td>
+</tr>
+<tr>
+<td>15          </td>
+<td> lightWhite</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Another thing that did not work for me right away was fonts. To render powerlines and icons, Oh My Posh requires the terminal to use a font that contains glyphs from the <a href="https://github.com/ryanoasis/nerd-fonts">Nerd Fonts</a>. Nerd Fonts readme contain links to the patched and supported fonts with permissive licensing terms.</p>
+
+<p>The font that I prefer to use was not on the list, so I had to patch it manually. The process is following:</p>
+
+<ol>
+<li>Clone Nerd Fonts repository</li>
+<li>Install Font Forge and Python</li>
+<li>Copy font file to a separate folder</li>
+<li>In the terminal, navigate to the Nerd Fonts repo root and run the following command</li>
+</ol>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bat'><span class='line'><span class="p">&lt;</span><span class="n">PATH_TO_FONT_FORGE</span>&gt;\fontforge.exe -script font-patcher --windows --complete <span class="p">&lt;</span><span class="n">PATH_TO_FONT_FILE</span>&gt;
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>More detailed instructions here - <a href="https://github.com/ryanoasis/nerd-fonts#option-8-patch-your-own-font">Nerd Fonts | Patch Your Own Font</a>.</p>
+
+<blockquote><p>The Nerd Fonts repository is heavy, and I recommend doing a shallow clone with --depth 1 option.</p></blockquote>
+
+<h2>Conclusions</h2>
+
+<p>The amount of work people put into the open-source projects I mentioned is astounding. I was also pleasantly surprised with the quality of tools and customization options available for CMD. Never before my terminal window was so aesthetically pleasing and functionally rich. Now I feel more inspired to continue experimenting with my setup and hope that this guide helped to improve your console experience.</p>
+
+<p>Good luck and happy hacking!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Why Your Team Should Do a Code Review on a Regular Basis]]></title>
+    <link href="http://amanek.com/why-your-team-should-do-a-code-review-on-a-regular-basis/"/>
+    <updated>2015-10-21T19:38:00-07:00</updated>
+    <id>http://amanek.com/why-your-team-should-do-a-code-review-on-a-regular-basis</id>
+    <content type="html"><![CDATA[<p>While working with any system we have to take into account so many aspects that even armed with the best tooling and extensive test suites we cannot guarantee 100% (but surely we can plan and minimize the risks) that the development/maintenance cost of our software will not exceed the amount of profit it generates.</p>
+
+<p>And to minimize the risks and costs we have to follow the best practices, methodologies and techniques. My personal approach to aforementioned good practices is very pragmatic - if something proved that it could be used to simplify the life of the team we'll use it. And one of that things that are often underestimated or neglected is a code (or peer) review.</p>
+
+<blockquote><p>In software development, peer review is a type of software review in which a work product (document, code, or other) is examined by its author and one or more colleagues, in order to evaluate its technical content and quality.</p>
+
+<p><strong>From Wikipedia, the free encyclopedia.</strong></p></blockquote>
+
+<h2>What Are The Benefits Of Doing A Code Review?</h2>
+
+<p>The main intent of the code review is to identify source code defects and quality issues. Another big advantage is a knowledge transfer. This is maybe the least expected outcome of the code review process. I personally observed lots of cases when reviewers were giving links and citing some external resources in their comments. That additional resources were helping author to get deeper into details, see the issue from different angles and as a result produce better code.</p>
+
+<p>For those who like numbers I recommend to read a study by Bacchelli A. and Bird C. <a href="http://sback.it/publications/icse2013.pdf">Expectations, outcomes, and challenges of modern code review</a> that characterizes the motivations of developers and managers for code review and compares it with actual results.</p>
+
+<p>Also Steve McConnell gives enough facts of code review effectiveness in <a href="http://www.amazon.com/gp/product/0735619670/ref=as_li_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=0735619670&amp;linkCode=as2&amp;tag=manekblog-20&amp;linkId=63IP6PEWIO325YEU">Code Complete</a>:</p>
+
+<blockquote style="font-style: normal">
+    <p style="margin-left: -1em; margin-bottom: 0.5em;">Technical reviews have been studied much longer than pair programming, and their results, as described in case studies and elsewhere, have been impressive:</p>
+    <ul>
+        <li>IBM found that each hour of inspection prevented about 100 hours of related work (testing and defect correction) (Holland 1999).</li>
+        <li>Raytheon reduced its cost of defect correction (rework) from about 40 percent of total project cost to about 20 percent through an initiative that focused on inspections (Haley 1996).</li>
+        <li>Hewlett-Packard reported that its inspection program saved an estimated $21.5 million per year (Grady and Van Slack 1994).</li>
+        <li>Imperial Chemical Industries found that the cost of maintaining a portfolio of about 400 programs was only about 10 percent as high as the cost of maintaining a similar set of programs that had not been inspected (Gilb and Graham 1993).</li>
+        <li>A study of large programs found that each hour spent on inspections avoided an average of 33 hours of maintenance work and that inspections were up to 20 times more efficient than testing (Russell 1991).</li>
+        <li>In a software-maintenance organization, 55 percent of one-line maintenance changes were in error before code reviews were introduced. After reviews were introduced, only 2 percent of the changes were in error (Freedman and Weinberg 1990). When all changes were considered, 95 percent were correct the first time after reviews were introduced. Before reviews were introduced, under 20 percent were correct the first time.</li>
+        <li>A group of 11 programs were developed by the same group of people, and all were released to production. The first five were developed without reviews and averaged 4.5 errors per 100 lines of code. The other six were inspected and averaged only 0.82 errors per 100 lines of code. Reviews cut the errors by over 80 percent (Freedman and Weinberg 1990).</li>
+        <li>Capers Jones reports that of all the software projects he has studied that have achieved 99 percent defect-removal rates or better, all have used formal inspections. Also, none of the projects that achieved less than 75 percent defectremoval efficiency used formal inspections (Jones 2000).</li>
+    </ul>
+</blockquote>
+
+
+<h2>How It Is Working?</h2>
+
+<p>The typical code review process is following:</p>
+
+<p><img class="center" src="/images/posts/code-review-process.png" title="'Diagram showing the typical code review flow'" ></p>
+
+<ol>
+<li>Author of change generates a patch and sends it to the code review system</li>
+<li>Author invites his teammates to review the code</li>
+<li>Code review participants are adding comments and suggestions on code improvement</li>
+<li>Author either follows the suggestions and updates the code or rejects them</li>
+<li>The code review is updated by author and a new review iteration is started</li>
+<li>When all debates around the change are finished the code review is approved and the change is merged into the repository.</li>
+</ol>
+
+
+<h2>Where To Start?</h2>
+
+<p>Code review is often supported by tools preferably integrated into the development environment. If you are working alone there is a site where you can ask for a peer programmer code review - <a href="http://codereview.stackexchange.com/">Code Review</a>. As like on a Stack Overflow this site has an army of active members that would happily help you no matter what language or technology you are using.</p>
+
+<p>There are also a plenty of tools available on a market starting from aforementioned SO site to <a href="https://www.visualstudio.com/en-us/get-started/code/get-code-reviewed-vs" title="Get your code reviewed with Visual Studio">TFS support</a> and integrated code review tooling inside <a href="https://github.com/features#code-review" title="Collaborative code review on GitHub">GitHub</a>, <a href="https://about.gitlab.com/features/" title="GitLab features">GitLab</a>, <a href="https://bitbucket.org/product/features" title="Bitbucket features">Bitbucket</a> and other OSS collaboration platforms.</p>
+
+<h2>Conclusions</h2>
+
+<p>If you are looking for how you can improve the state of the codebase and/or development process in general start practicing code review on daily basis.</p>
+
+<p>Surely if the team never practiced code review before it would be harder to start but as Laozi said “The journey of a thousand miles begins with one step”. And I wish you to succeed!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates]]></title>
+    <link href="http://amanek.com/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/"/>
+    <updated>2015-10-08T11:05:00-07:00</updated>
+    <id>http://amanek.com/generate-typescript-interfaces-from-net-assemblies-using-t4-templates</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p>When it comes to writing the HTML/JavaScript client for <em>your</em> ("your" here means you own the code or have direct access to the assemblies) web service there is one thing that bothers everyone -  translating classes from .NET to JavaScript. The problem is that whenever your service contract changes you need to reflect this change in your client application. Yes, most of the time this is not the case when the service is already in production but when the client and the service are both being written at the same time I think you would agree that continuous changes in service contract are a common thing.</p>
+
+<p>Another big issue - even if current service contract (read API version) is "frozen" and is not going to change in future you still have to manually translate all your .NET classes to the JavaScript. It is OK if you have a handful of classes, but can you imagine (or even recall) the pain of translating couple of dozens of C# classes to the JavaScript?</p>
+
+<p>That's it, that is why I've decided to share my approach to this issue of translating the .NET classes to JavaScript.</p>
+
+<h2>The Problem</h2>
+
+<p>Lets imagine the situation where we have two teams that are working on two projects - the server side and the client side. The server side is represented by ASP.NET WebAPI service and the client side is an HTML/JavaScript application. As the server project progresses client team notices that it continuously have to make little adjustments "here and there" to keep up to date with the WebAPI changes in its DTO classes. So the problem is to automate this tedious for both teams process.</p>
+
+<blockquote><p>As of writing this post I've found that there is a question on StackOverflow showing an interest to this topic - <a href="http://stackoverflow.com/questions/12957820/how-to-reuse-existing-c-sharp-class-definitions-in-typescript-projects">How to reuse existing C# class definitions in TypeScript projects</a>.</p></blockquote>
+
+<h2>The Solution</h2>
+
+<p>As always there are two ways of solving the problem - use existing solution or write a new one.</p>
+
+<p>There are at least two tools are available - <a href="http://type.litesolutions.net/">TypeLite</a> and <a href="https://github.com/cskeppstedt/t4ts">T4TS</a>. Everything is good with these tools but when it came to customization it turned out that you need to decorate the classes with some fancy attributes or code transformation functions. This means that you should mix in the requirements like module/property naming convention to the classes that are not even aware of existence of some client project that indirectly depends on them.</p>
+
+<p>You can call me a purist but hey, why would I need to keep the metadata required for one project in another? And why should I complicate things and instruct the team working with a server side of how to decorate the classes with attributes that are needed by other team? Simple things should be simple. I just want my C# classes/structs/enums to be transformed to the TypeScript interfaces/classes/enums.</p>
+
+<p><span class="pullquote-right" data-pullquote="Most of the time you will not find the &quot;ready for use&quot; solution that will 100% satisfy you. Best case is that you'll find something that is simple and easy to change."></span>
+From my experience when it comes to codegeneration most of the time you will not find the "ready for use" solution that will 100% satisfy you. Best case is that you'll find something that is simple and easy to change.
+</p>
+
+
+<p>So I've chosen the second path - hack my own solution. For DTOs I've decided to write a code generator based on <a href="https://msdn.microsoft.com/en-us/library/ee844259%28v=vs.120%29.aspx">T4 Text Templates</a> and reflection. And since I have a TypeScript based project my code generation templates are producing <a href="http://www.typescriptlang.org/">TypeScript</a> code. Why TypeScript? For me, the main reason is compile time errors. I like that I can have classes and interfaces which usage will be checked by compiler at development time and I will see the mistakes before I run the app. Also it is worth to mention that TypeScript supports almost all features of the the <a href="https://github.com/lukehoban/es6features#readme">ECMAScript 6</a> which is also good because investing time in TypeScript now I will be up to date with the latest standard available.</p>
+
+<p>I also strongly believe that it is critically important to run code generation on every build and have no auto-generated things committed in a source control. This approach minimizes the probability of mistakes made by engineers (yes, I've had experience when warnings like <code>// This code was auto-generated</code> were ignored).</p>
+
+<h3>Code</h3>
+
+<p>Since I'm going to generate classes I have to describe the metadata I need. This would be the name of the interface/enum and a list of its members:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Metadata Classes - MetadataModels.cs </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="p">&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="k">internal</span> <span class="k">enum</span> <span class="n">DtoTypeKind</span>
+</span><span class='line'><span class="p">{&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;</span><span class="n">Interface</span><span class="p">,</span>
+</span><span class='line'><span class="n">Enum</span><span class="p">,</span>
+</span><span class='line'><span class="n">Class</span>
+</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;}&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="k">internal</span> <span class="k">class</span> <span class="nc">DtoType</span>
+</span><span class='line'><span class="p">{&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;</span><span class="k">public</span> <span class="kt">string</span> <span class="n">Name</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'><span class="k">public</span> <span class="n">DtoTypeKind</span> <span class="n">Kind</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'><span class="k">public</span> <span class="n">IEnumerable</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">DtoMember</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">Members</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;}&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="k">internal</span> <span class="k">class</span> <span class="nc">DtoMember</span>
+</span><span class='line'><span class="p">{&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;</span><span class="k">public</span> <span class="kt">string</span> <span class="n">Name</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'><span class="k">public</span> <span class="n">Type</span> <span class="n">Type</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;}&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><code>MetadataHelper</code> class is the heart of solution - it will extract the data needed for codegeneration using reflection:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>MetadataHelper.cs </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="p">&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="k">internal</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">MetadataHelper</span>
+</span><span class='line'><span class="p">{&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;</span><span class="k">public</span> <span class="k">static</span> <span class="n">DtoType</span><span class="p">[]</span> <span class="n">GetDtoTypesMetadata</span><span class="p">(</span><span class="n">IEnumerable</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">Type</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">types</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">types</span>
+</span><span class='line'>        <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">!</span><span class="n">t</span><span class="p">.</span><span class="n">IsAbstract</span><span class="p">)</span> <span class="c1">// We are not interested in abstract classes</span>
+</span><span class='line'>        <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">t</span><span class="p">.</span><span class="n">GetCustomAttribute</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">DataContractAttribute</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;()</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">t</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="k">new</span> <span class="n">DtoType</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Name</span> <span class="p">=</span> <span class="n">t</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span>
+</span><span class='line'>            <span class="c1">// struct =&amp;gt; interface</span>
+</span><span class='line'>            <span class="c1">// class =&amp;gt; class</span>
+</span><span class='line'>            <span class="c1">// enum =&amp;gt; enum. Must check for enum first because it is a ValueType and we want to avoid enums to be generaed as interfaces</span>
+</span><span class='line'>            <span class="n">Kind</span> <span class="p">=</span> <span class="n">t</span><span class="p">.</span><span class="n">IsEnum</span>
+</span><span class='line'>                    <span class="p">?</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Enum</span>
+</span><span class='line'>                    <span class="p">:</span> <span class="n">t</span><span class="p">.</span><span class="n">IsValueType</span>
+</span><span class='line'>                        <span class="p">?</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Interface</span>
+</span><span class='line'>                        <span class="p">:</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Class</span><span class="p">,</span>
+</span><span class='line'>            <span class="n">Members</span> <span class="p">=</span> <span class="n">t</span><span class="p">.</span><span class="n">IsEnum</span> <span class="c1">// For enum types we should get its values except the &quot;value__&quot; field</span>
+</span><span class='line'>                <span class="p">?</span> <span class="n">t</span><span class="p">.</span><span class="n">GetFields</span><span class="p">()</span>
+</span><span class='line'>                    <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">f</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">f</span><span class="p">.</span><span class="n">GetCustomAttribute</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">DataMemberAttribute</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;()</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;</span><span class="n">amp</span><span class="p">;&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">f</span><span class="p">.</span><span class="n">Name</span> <span class="p">!=</span> <span class="s">&quot;value__&quot;</span><span class="p">)</span>
+</span><span class='line'>                    <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">f</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="k">new</span> <span class="n">DtoMember</span>
+</span><span class='line'>                    <span class="p">{</span>
+</span><span class='line'>                        <span class="n">Name</span> <span class="p">=</span> <span class="n">f</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">Type</span> <span class="p">=</span> <span class="n">f</span><span class="p">.</span><span class="n">FieldType</span>
+</span><span class='line'>                    <span class="p">})</span>
+</span><span class='line'>                <span class="p">:</span> <span class="n">t</span><span class="p">.</span><span class="n">GetProperties</span><span class="p">(</span><span class="n">BindingFlags</span><span class="p">.</span><span class="n">Public</span> <span class="p">|</span> <span class="n">BindingFlags</span><span class="p">.</span><span class="n">Instance</span><span class="p">)</span>
+</span><span class='line'>                    <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">p</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">p</span><span class="p">.</span><span class="n">GetCustomAttribute</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">DataMemberAttribute</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;()</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>                    <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">p</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="k">new</span> <span class="n">DtoMember</span>
+</span><span class='line'>                    <span class="p">{</span>
+</span><span class='line'>                        <span class="n">Name</span> <span class="p">=</span> <span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">Type</span> <span class="p">=</span> <span class="n">p</span><span class="p">.</span><span class="n">PropertyType</span>
+</span><span class='line'>                    <span class="p">})</span>
+</span><span class='line'>        <span class="p">})</span>
+</span><span class='line'>        <span class="p">.</span><span class="n">ToArray</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;}&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>To be able to parameterize and run codegeneration on every build I'm using preprocessed T4 templates (for more information on topic please refer to the Oleg Sych's <a href="http://www.olegsych.com/2009/09/t4-preprocessed-text-templates/">Understanding T4: Preprocessed Text Templates</a> blog post). Preprocessed template generates a partial class that I'll be able to extend with metadata I need:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="p">&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="k">internal</span> <span class="k">partial</span> <span class="k">class</span> <span class="nc">TypesGenerator</span>
+</span><span class='line'><span class="p">{&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;</span><span class="k">public</span> <span class="n">DtoType</span><span class="p">[]</span> <span class="n">DtoTypes</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="n">IEnumerable</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">DtoType</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">Interfaces</span> <span class="p">{</span> <span class="k">get</span> <span class="p">{</span> <span class="k">return</span> <span class="n">DtoTypes</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">t</span><span class="p">.</span><span class="n">Kind</span> <span class="p">==</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Class</span> <span class="p">||</span> <span class="n">t</span><span class="p">.</span><span class="n">Kind</span> <span class="p">==</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Interface</span><span class="p">);</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'><span class="k">private</span> <span class="n">IEnumerable</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">DtoType</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">Enums</span> <span class="p">{</span> <span class="k">get</span> <span class="p">{</span> <span class="k">return</span> <span class="n">DtoTypes</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span> <span class="p">=&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">t</span><span class="p">.</span><span class="n">Kind</span> <span class="p">==</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Enum</span><span class="p">);</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;}&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>And the actual template. It also contains a helper method that translates .NET types to the corresponding TypeScript type names.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>T4 Template - TypesGenerator.tt </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#@</span> <span class="n">template</span> <span class="n">language</span><span class="p">=</span><span class="s">&quot;C#&quot;</span> <span class="n">visibility</span><span class="p">=</span><span class="s">&quot;internal&quot;</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#@</span> <span class="n">assembly</span> <span class="n">name</span><span class="p">=</span><span class="s">&quot;System.Core&quot;</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#@</span> <span class="n">import</span> <span class="n">namespace</span><span class="p">=</span><span class="s">&quot;System.Collections.Generic&quot;</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="c1">//------------------------------------------------------------------------------</span>
+</span><span class='line'><span class="c1">// &lt;auto-generated&gt;</span>
+</span><span class='line'><span class="c1">//     This code was generated by a tool.</span>
+</span><span class='line'><span class="c1">//     Runtime Version: &amp;lt;#= Environment.Version #&gt;</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">//     Changes to this file may cause incorrect behavior and will be lost if</span>
+</span><span class='line'><span class="c1">//     the code is regenerated.</span>
+</span><span class='line'><span class="c1">// &lt;/auto-generated&gt;</span>
+</span><span class='line'><span class="c1">//------------------------------------------------------------------------------&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="s">&quot;use strict&quot;</span><span class="p">;&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="c1">// Interfaces</span>
+</span><span class='line'><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span> <span class="k">foreach</span><span class="p">(</span><span class="kt">var</span> <span class="n">@interface</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="n">Interfaces</span><span class="p">)</span> <span class="p">{</span> <span class="err">#</span><span class="p">&gt;&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="n">export</span> <span class="k">interface</span> <span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span><span class="p">=</span> <span class="n">@interface</span><span class="p">.</span><span class="n">Name</span> <span class="err">#</span><span class="p">&gt;</span> <span class="p">{&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span>    <span class="k">foreach</span><span class="p">(</span><span class="kt">var</span> <span class="n">member</span> <span class="k">in</span> <span class="n">@interface</span><span class="p">.</span><span class="n">Members</span><span class="p">)</span> <span class="p">{</span> <span class="err">#</span><span class="p">&gt;&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span><span class="p">=</span> <span class="n">member</span><span class="p">.</span><span class="n">Name</span><span class="err">#</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;?:</span> <span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span><span class="p">=</span> <span class="n">GetTypeScriptFieldTypeName</span><span class="p">(</span><span class="n">member</span><span class="p">.</span><span class="n">Type</span><span class="p">)</span> <span class="err">#</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;;</span>
+</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span>    <span class="p">}</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span> <span class="p">}</span> <span class="err">#</span><span class="p">&gt;&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="c1">// Enums</span>
+</span><span class='line'><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span> <span class="k">foreach</span><span class="p">(</span><span class="kt">var</span> <span class="n">@enum</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="n">Enums</span><span class="p">)</span> <span class="p">{</span> <span class="err">#</span><span class="p">&gt;&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="n">export</span> <span class="k">enum</span> <span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span><span class="p">=</span> <span class="n">@enum</span><span class="p">.</span><span class="n">Name</span> <span class="err">#</span><span class="p">&gt;</span> <span class="p">{</span>
+</span><span class='line'><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span>    <span class="k">foreach</span><span class="p">(</span><span class="kt">var</span> <span class="n">member</span> <span class="k">in</span> <span class="n">@enum</span><span class="p">.</span><span class="n">Members</span><span class="p">)</span> <span class="p">{</span> <span class="err">#</span><span class="p">&gt;&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span><span class="p">=</span> <span class="n">member</span><span class="p">.</span><span class="n">Name</span> <span class="err">#</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">=</span> <span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span><span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">Enum</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">member</span><span class="p">.</span><span class="n">Type</span><span class="p">,</span> <span class="n">member</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span> <span class="err">#</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;,</span>
+</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span>    <span class="p">}</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span> <span class="p">}</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="err">#</span><span class="p">+&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;</span><span class="c1">/// &amp;lt;summary&amp;gt;</span>
+</span><span class='line'><span class="c1">/// Returns a corresponding TypeScript type for a given .NET type</span>
+</span><span class='line'><span class="c1">/// &amp;lt;/summary&amp;gt;</span>
+</span><span class='line'><span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">GetTypeScriptFieldTypeName</span><span class="p">(</span><span class="n">Type</span> <span class="n">type</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">numberTypes</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">Type</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">typeof</span><span class="p">(</span><span class="kt">sbyte</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">byte</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">short</span><span class="p">),</span>
+</span><span class='line'>        <span class="k">typeof</span><span class="p">(</span><span class="kt">ushort</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">uint</span><span class="p">),</span>
+</span><span class='line'>        <span class="k">typeof</span><span class="p">(</span><span class="kt">long</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">ulong</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span>
+</span><span class='line'>        <span class="k">typeof</span><span class="p">(</span><span class="kt">double</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">decimal</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">stringTypes</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">Type</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">typeof</span><span class="p">(</span><span class="kt">char</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">string</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="n">Guid</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">result</span> <span class="p">=</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">isCollectionType</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// Check if it is a generic. We support only generics which are compatible with IEnumerable&amp;lt;T&amp;gt; and have only one generic argument</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">type</span><span class="p">.</span><span class="n">IsGenericType</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(!</span><span class="k">typeof</span><span class="p">(</span><span class="n">IEnumerable</span><span class="p">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="kt">object</span><span class="p">&amp;</span><span class="n">gt</span><span class="p">;).</span><span class="n">IsAssignableFrom</span><span class="p">(</span><span class="n">type</span><span class="p">)</span> <span class="p">&amp;</span><span class="n">amp</span><span class="p">;&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">type</span><span class="p">.</span><span class="n">GetGenericArguments</span><span class="p">().</span><span class="n">Length</span> <span class="p">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">&quot;The generic type {0} must implement IEnumerable&amp;lt;T&amp;gt; and must have no more than 1 generic argument.&quot;</span><span class="p">,</span> <span class="n">type</span><span class="p">.</span><span class="n">FullName</span><span class="p">));</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="c1">// strip the generic type leaving the first generic argument</span>
+</span><span class='line'>        <span class="n">type</span> <span class="p">=</span> <span class="n">type</span><span class="p">.</span><span class="n">GetGenericArguments</span><span class="p">()[</span><span class="m">0</span><span class="p">];</span>
+</span><span class='line'>        <span class="n">isCollectionType</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Check if it is a primitive type</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">numberTypes</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">type</span><span class="p">))</span> <span class="n">result</span> <span class="p">=</span> <span class="s">&quot;number&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">stringTypes</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">type</span><span class="p">))</span> <span class="n">result</span> <span class="p">=</span> <span class="s">&quot;string&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">type</span> <span class="p">==</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">bool</span><span class="p">))</span> <span class="n">result</span> <span class="p">=</span> <span class="s">&quot;boolean&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// It is enum/class/struct -&amp;gt; return its name as-is</span>
+</span><span class='line'>    <span class="k">else</span> <span class="n">result</span> <span class="p">=</span> <span class="n">type</span><span class="p">.</span><span class="n">Name</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">isCollectionType</span><span class="p">)</span> <span class="n">result</span> <span class="p">+=</span> <span class="s">&quot;[]&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">h1</span><span class="p">&gt;&gt;&lt;/</span><span class="n">h1</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>And the usage is very simple. I've created a console application which could be launched for example on CI server during the build.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="p">&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span><span class="k">static</span> <span class="k">void</span> <span class="n">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'><span class="p">{&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">pre</span><span class="p">&gt;&lt;</span><span class="n">code</span><span class="p">&gt;</span><span class="k">if</span> <span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">Length</span> <span class="p">==</span> <span class="m">0</span> <span class="p">||</span> <span class="n">args</span><span class="p">[</span><span class="m">0</span><span class="p">].</span><span class="n">IndexOfAny</span><span class="p">(</span><span class="n">Path</span><span class="p">.</span><span class="n">GetInvalidPathChars</span><span class="p">())</span> <span class="p">&amp;</span><span class="n">gt</span><span class="p">;=</span> <span class="m">0</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentException</span><span class="p">(</span><span class="s">&quot;Invalid argument. First argument should be a valid file path.&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">var</span> <span class="n">fileName</span> <span class="p">=</span> <span class="n">args</span><span class="p">[</span><span class="m">0</span><span class="p">];</span>
+</span><span class='line'><span class="kt">var</span> <span class="n">typesMetadata</span> <span class="p">=</span> <span class="n">MetadataHelper</span><span class="p">.</span><span class="n">GetDtoTypesMetadata</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">Todo</span><span class="p">).</span><span class="n">Assembly</span><span class="p">.</span><span class="n">ExportedTypes</span><span class="p">);</span>
+</span><span class='line'><span class="kt">var</span> <span class="n">typesGenerator</span> <span class="p">=</span> <span class="k">new</span> <span class="n">TypesGenerator</span> <span class="p">{</span> <span class="n">DtoTypes</span> <span class="p">=</span> <span class="n">typesMetadata</span> <span class="p">};</span>
+</span><span class='line'><span class="n">File</span><span class="p">.</span><span class="n">WriteAllText</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">typesGenerator</span><span class="p">.</span><span class="n">TransformText</span><span class="p">().</span><span class="n">Trim</span><span class="p">());</span>
+</span><span class='line'><span class="p">&lt;/</span><span class="n">code</span><span class="p">&gt;&lt;/</span><span class="n">pre</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;}&lt;/</span><span class="n">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span><span class="p">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>Conclusion</h2>
+
+<p>As you can see with a very little effort I've got a working and open to any customizations codegenerator. As always the code from this post is available on <a href="https://github.com/manekovskiy/webapi-typescript-proxy-generator">Github</a>. Feel free to clone and adjust to your needs.</p>
+
+<p>Keep the code simple!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to Configure ComEmu Task for GitHub for Windows Portable Git]]></title>
+    <link href="http://amanek.com/how-to-configure-comemu-task-for-github-for-windows-portable-git/"/>
+    <updated>2014-07-20T11:58:00-07:00</updated>
+    <id>http://amanek.com/how-to-configure-comemu-task-for-github-for-windows-portable-git</id>
+    <content type="html"><![CDATA[<blockquote><p><strong>2/19/2015 Update:</strong> I've decided that it would be good to propose the change described in this post to the <a href="https://github.com/msysgit/msysgit">msysgit</a> project. And today it was accepted and merged.
+It took me only 7 months to come up with idea that the change described below could be included into the official release of the software that I'm using on a daily basis :)</p></blockquote>
+
+<p>Maybe a year or something ago I switched from <a href="http://sourceforge.net/projects/console/files/">Console2</a> to <a href="http://code.google.com/p/conemu-maximus5/">ConEmu</a>. One of the reasons behind this switch was a <a href="http://code.google.com/p/conemu-maximus5/wiki/SettingsTasks">Task</a> concept that ConEmu offered.</p>
+
+<p>There was only one problem with my tasks setup - I wanted to launch Portable Git which is a part of GitHub for Windows installation inside ConEmu. But launching the <code>git-cmd.bat</code> from ConEmu will create a new  window.</p>
+
+<blockquote><p>As you may know Portable Git binaries are located in  <code>%LOCALAPPDATA%\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\</code>
+Note that the last part of the directory name is a version string so it could change in future.</p></blockquote>
+
+<p>The problem lies in the last line of the <code>git-cmd.bat</code> file:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>git-cmd.bat </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='bat'><span class='line'><span class="p">@</span>rem <span class="k">Do</span> not use <span class="s2">&quot;echo off&quot;</span> to not affect any child calls.
+</span><span class='line'><span class="p">@</span><span class="k">setlocal</span>&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;@rem Get the abolute path to the current directory<span class="p">,</span> which is assumed to be the
+</span><span class='line'><span class="p">@</span>rem Git installation root.
+</span><span class='line'><span class="p">@</span><span class="k">for</span> <span class="n">/F</span> <span class="s2">&quot;delims=&quot;</span> <span class="nv">%%I</span> in (<span class="s2">&quot;%~dp0&quot;</span>) <span class="k">do</span> @<span class="k">set</span> <span class="nv">git_install_root</span><span class="o">=</span><span class="nv">%%~fI</span>
+</span><span class='line'><span class="p">@</span><span class="k">set</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">%git_install_root%</span>\bin;<span class="nv">%git_install_root%</span>\mingw\bin;<span class="nv">%git_install_root%</span>\cmd;<span class="nv">%PATH%</span>&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;@<span class="k">if</span> not <span class="k">exist</span> <span class="s2">&quot;%HOME%&quot;</span> @<span class="k">set</span> <span class="nv">HOME</span><span class="o">=</span><span class="nv">%HOMEDRIVE%%HOMEPATH%</span>
+</span><span class='line'><span class="p">@</span><span class="k">if</span> not <span class="k">exist</span> <span class="s2">&quot;%HOME%&quot;</span> @<span class="k">set</span> <span class="nv">HOME</span><span class="o">=</span><span class="nv">%USERPROFILE%</span>&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;@<span class="k">set</span> <span class="nv">PLINK_PROTOCOL</span><span class="o">=</span>ssh
+</span><span class='line'><span class="p">@</span><span class="k">if</span> not <span class="k">defined</span> TERM <span class="k">set</span> <span class="nv">TERM</span><span class="o">=</span>msys&lt;<span class="n">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="n">p</span>&gt;@<span class="k">cd</span> <span class="nv">%HOME%</span>
+</span><span class='line'><span class="p">@</span>start <span class="nv">%COMSPEC%</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>To fix the issue replace last line <code>@start %COMSPEC%</code> with <code>@call %COMSPEC%</code>.</p>
+
+<blockquote><p>This change will <strong>not</strong> break the existing "Open in Git Shell" context action in GitHub application GUI.</p></blockquote>
+
+<p>The difference between <code>start</code> and <code>call</code> commands is that <code>call</code> runs the batch script inside the same shell instance while <code>start</code> creates a new instance. Here is a little fragment from <code>start</code> and <code>call</code> help:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>C:>call /?
+</span><span class='line'>Calls one batch program from another.&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>C:>start /?
+</span><span class='line'>Starts a separate window to run a specified program or command.</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>That's it! Now following task for ConEmu will work as expected:</p>
+
+<p><code>*cmd /k Title Git &amp; "%LOCALAPPDATA%\GitHub\PortableGit_054f2e797ebafd44a30203088cd3d58663c627ef\git-cmd.bat"</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Automate your dev environment setup]]></title>
+    <link href="http://amanek.com/automate-your-dev-environment-setup/"/>
+    <updated>2013-09-14T19:03:00-07:00</updated>
+    <id>http://amanek.com/automate-your-dev-environment-setup</id>
+    <content type="html"><![CDATA[<p>Every time I need to install and configure developer environment on a fresh OS (either on real or virtual machine) I feel irritated by the fact that I need to spend almost all my day just clicking around various installation dialogs confirming destination folders, accepting user agreements (that I can bet no one even tried to read fully) and performing other repetitive and almost pointless tasks.</p>
+
+<p>I'm developer, I'm creating things (or at least trying to), so why would I waste my time doing dull and pointless work?! Ah, and why should I keep in mind (or in notepad, "installs" folder, etc.) a list of my tools and installation packages?</p>
+
+<p>But honestly, I just cannot resist or give a single reason why this shouldn't be automated. Said it - did it. And here are my adventures.</p>
+
+<h2>Let's get Chocolatey?</h2>
+
+<p>Maybe you've heard about <a href="http://chocolatey.org/" title="Chocolatey website">Chocolatey</a>. In short this tool is like <a href="http://en.wikipedia.org/wiki/Advanced_Packaging_Tool" title="Wiki page for apt-get">apt-get</a> but for Windows and it is built on top of NuGet.</p>
+
+<blockquote><p>For those who are not familiar with NuGet and all variety of tools around it take a look at <a href="http://www.codeproject.com/Reference/628210/An-Overview-of-the-NuGet-Ecosystem">An Overview of the NuGet Ecosystem</a> article by Xavier Decoster.</p>
+
+<p>For a quick Chocolatey overview I can recommend Scott Hanselman's post <a href="http://www.hanselman.com/blog/IsTheWindowsUserReadyForAptget.aspx">Is the Windows user ready for apt-get</a>?</p></blockquote>
+
+<p>As of time of writing Chocolatey had 1,244 unique packages which is pretty cool - it is really hard to find package that does not exist there.</p>
+
+<p>After a little search it appeared that I can even install Visual Studio with Chocolatey. Okay, cool, let's do this.</p>
+
+<h3>No Battle Plan Survives Contact With the Enemy</h3>
+
+<p>I tried to install my first package on a fresh Windows 8 virtual machine and failed on the very first step. Jumping ahead of the story partially that was my fail but let's roll on.</p>
+
+<p>I wanted no more no less - install <a href="http://chocolatey.org/packages/VisualStudio2013Ultimate" title="VS 2013 chocolatey package">Visual Studio 2013 Ultimate Preview</a> and see its new shining features for web devs. As described on site I installed Chocolatey and run <code>cinst VisualStudio2013Ultimate</code> command. Package downloaded, and .NET 4.5.1 installation started. Boom! I got my first error:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[ERROR] Exception calling "Start" with "1" argument(s): "The operation was canceled by the user"</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><img class="center" src="/images/posts/win8-chocolatey-net451-error.png" title="Chocolatey .NET 4.5.1 installation error" alt="Chocolatey .NET 4.5.1 installation error"></p>
+
+<p>After some research it appeared that by default Windows 8 processes are not launched with administrator privileges (even if current user is member of Administrator group) and because of silent installation mode (read "non-UI mode") UAC prompt was not showed and attempt to elevate rights was cancelled by default. To fix this issue I had to disable UAC notifications. I have spent quite time searching the cause of my issue and decided to table VS 2013 for now and proceed with installation of the Visual Studio 2012 instead.</p>
+
+<p>To install 90 day trial of Visual Studio 2012 Ultimate I run <code>cinst VisualStudio2012Ultimate</code> command and after a little pause and some blinking of standard installation dialog another crazy error appeared:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>blah-blah-blah. Exit code was '-2147185721'</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><img class="center" src="/images/posts/win8-chocolatey-vs2012-error-1.png" title="Chocolatey VS 2012 installation error" alt="Chocolatey VS 2012 installation error"></p>
+
+<p>Thankfully, I have experience with silent installations of Visual Studio and I have a link to <a href="http://msdn.microsoft.com/en-us/library/vstudio/ee225238.aspx" title="Visual Studio Administrator Guide on MSDN">Visual Studio Administrator Guide</a> in my bookmarks which contains a list of exit codes for installation package. <code>-2147185721</code> code is "<em>Incomplete - Reboot Required</em>". That sounded logically. <code>/NoRestart</code> switch in VS chocolatey install script setup was automatically cancelled and returned non-zero value which was treated as error. Okay, rebooted the machine.</p>
+
+<p>But this was not my last error :). After reboot using <code>-force</code> parameter I resumed installation process of the Visual Studio and got my next error (extracted from installation log <code>vs.log</code> file):</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[0824:0820][2013-09-14T12:56:04]: Applied execute package: vcRuntimeDebug_x86, result: 0x0, restart: None
+</span><span class='line'>[082C:09C4][2013-09-14T12:56:04]: Registering dependency: {ae17ae9b-af38-40d2-a194-6102c56ed502} on package provider: Microsoft.VS.VC_RuntimeDebug_x86,v11, package: vcRuntimeDebug_x86
+</span><span class='line'>[082C:0850][2013-09-14T12:56:12]: Error 0x80070490: Failed to find expected public key in certificate chain.</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>The last words from "chocolatey gods" were <code>Exit code was '1603'</code>.</p>
+
+<p>This time nothing came to my mind except trying to install updates on Windows first (words "certificate chain" lead me to this idea). As it turned out that was the case and my great mistake not to install updates first.</p>
+
+<blockquote><p>Moral: never try to install something serious unless you have all updates for your OS installed.</p></blockquote>
+
+<p>After all these errors I decided to rollback my virtual machine back to the initial state and start from scratch. This time I installed all Windows updates and after I finished all Chocolatey packages were installed without any errors.</p>
+
+<h2>Share all the scripts!</h2>
+
+<p><img class="right" src="/images/posts/share-all-the-scripts.jpg" title="Share all the scripts!" alt="Share all the scripts!"></p>
+
+<p>After I finished with my journey I decided that it would be great to keep my scripts in one place and have a possibility to share them. I cannot find any better service for this but Github. Now I can share my scripts, update them, have a history of changes, make tags and special branches for some specific setups. Isn't this great and how it should be?</p>
+
+<p>Go fork <a href="https://github.com/manekovskiy/devenv-setup-scripts" title="devenv-setup-scripts project page">my repository</a> and start making your life easier!</p>
+
+<h2>Conclusions</h2>
+
+<p>Here I did only first steps on the road to the bright future of the automated environment setup. And while we can use Chocolatey to save time with installations we still need to configure the stuff. Of course if you are using default settings this is not a problem but unfortunatelly this is not my case ;)</p>
+
+<p>I think in my next post I will share my experience in automated configurations trasferring.</p>
+]]></content>
+  </entry>
+  
+</feed>

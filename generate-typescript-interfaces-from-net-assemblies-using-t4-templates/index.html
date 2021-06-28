@@ -1,0 +1,669 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates - Alexander Manekovskiy</title>
+  <meta name="author" content="Alexander Manekovskiy">
+
+  
+  <meta name="description" content="Introduction When it comes to writing the HTML/JavaScript client for your (&#8220;your&#8221; here means you own the code or have direct access to &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://amanek.com/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/feed/" rel="alternate" title="Alexander Manekovskiy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28104381-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Alexander Manekovskiy</a></h1>
+  
+    <h2>Automating Automation</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/feed/" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:amanek.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-10-08T11:05:00-07:00" pubdate data-updated="true">Oct 8<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Introduction</h2>
+
+<p>When it comes to writing the HTML/JavaScript client for <em>your</em> (&#8220;your&#8221; here means you own the code or have direct access to the assemblies) web service there is one thing that bothers everyone -  translating classes from .NET to JavaScript. The problem is that whenever your service contract changes you need to reflect this change in your client application. Yes, most of the time this is not the case when the service is already in production but when the client and the service are both being written at the same time I think you would agree that continuous changes in service contract are a common thing.</p>
+
+<p>Another big issue - even if current service contract (read API version) is &#8220;frozen&#8221; and is not going to change in future you still have to manually translate all your .NET classes to the JavaScript. It is OK if you have a handful of classes, but can you imagine (or even recall) the pain of translating couple of dozens of C# classes to the JavaScript?</p>
+
+<p>That&#8217;s it, that is why I&#8217;ve decided to share my approach to this issue of translating the .NET classes to JavaScript.</p>
+
+<h2>The Problem</h2>
+
+<p>Lets imagine the situation where we have two teams that are working on two projects - the server side and the client side. The server side is represented by ASP.NET WebAPI service and the client side is an HTML/JavaScript application. As the server project progresses client team notices that it continuously have to make little adjustments &#8220;here and there&#8221; to keep up to date with the WebAPI changes in its DTO classes. So the problem is to automate this tedious for both teams process.</p>
+
+<blockquote><p>As of writing this post I&#8217;ve found that there is a question on StackOverflow showing an interest to this topic - <a href="http://stackoverflow.com/questions/12957820/how-to-reuse-existing-c-sharp-class-definitions-in-typescript-projects">How to reuse existing C# class definitions in TypeScript projects</a>.</p></blockquote>
+
+<h2>The Solution</h2>
+
+<p>As always there are two ways of solving the problem - use existing solution or write a new one.</p>
+
+<p>There are at least two tools are available - <a href="http://type.litesolutions.net/">TypeLite</a> and <a href="https://github.com/cskeppstedt/t4ts">T4TS</a>. Everything is good with these tools but when it came to customization it turned out that you need to decorate the classes with some fancy attributes or code transformation functions. This means that you should mix in the requirements like module/property naming convention to the classes that are not even aware of existence of some client project that indirectly depends on them.</p>
+
+<p>You can call me a purist but hey, why would I need to keep the metadata required for one project in another? And why should I complicate things and instruct the team working with a server side of how to decorate the classes with attributes that are needed by other team? Simple things should be simple. I just want my C# classes/structs/enums to be transformed to the TypeScript interfaces/classes/enums.</p>
+
+<p><span class="pullquote-right" data-pullquote="Most of the time you will not find the &quot;ready for use&quot; solution that will 100% satisfy you. Best case is that you'll find something that is simple and easy to change."></span>
+From my experience when it comes to codegeneration most of the time you will not find the &#8220;ready for use&#8221; solution that will 100% satisfy you. Best case is that you&#8217;ll find something that is simple and easy to change.
+</p>
+
+
+<p>So I&#8217;ve chosen the second path - hack my own solution. For DTOs I&#8217;ve decided to write a code generator based on <a href="https://msdn.microsoft.com/en-us/library/ee844259%28v=vs.120%29.aspx">T4 Text Templates</a> and reflection. And since I have a TypeScript based project my code generation templates are producing <a href="http://www.typescriptlang.org/">TypeScript</a> code. Why TypeScript? For me, the main reason is compile time errors. I like that I can have classes and interfaces which usage will be checked by compiler at development time and I will see the mistakes before I run the app. Also it is worth to mention that TypeScript supports almost all features of the the <a href="https://github.com/lukehoban/es6features#readme">ECMAScript 6</a> which is also good because investing time in TypeScript now I will be up to date with the latest standard available.</p>
+
+<p>I also strongly believe that it is critically important to run code generation on every build and have no auto-generated things committed in a source control. This approach minimizes the probability of mistakes made by engineers (yes, I&#8217;ve had experience when warnings like <code>// This code was auto-generated</code> were ignored).</p>
+
+<h3>Code</h3>
+
+<p>Since I&#8217;m going to generate classes I have to describe the metadata I need. This would be the name of the interface/enum and a list of its members:</p>
+
+<figure class='code'><figcaption><span>Metadata Classes - MetadataModels.cs </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">internal</span> <span class="k">enum</span> <span class="n">DtoTypeKind</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">Interface</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">Enum</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">Class</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">internal</span> <span class="k">class</span> <span class="nc">DtoType</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="kt">string</span> <span class="n">Name</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">public</span> <span class="n">DtoTypeKind</span> <span class="n">Kind</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">public</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">DtoMember</span><span class="p">&gt;</span> <span class="n">Members</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">internal</span> <span class="k">class</span> <span class="nc">DtoMember</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="kt">string</span> <span class="n">Name</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">public</span> <span class="n">Type</span> <span class="n">Type</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>MetadataHelper</code> class is the heart of solution - it will extract the data needed for codegeneration using reflection:</p>
+
+<figure class='code'><figcaption><span>MetadataHelper.cs </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">internal</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">MetadataHelper</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="k">static</span> <span class="n">DtoType</span><span class="p">[]</span> <span class="nf">GetDtoTypesMetadata</span><span class="p">(</span><span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">Type</span><span class="p">&gt;</span> <span class="n">types</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">types</span>
+</span><span class='line'>          <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span> <span class="p">=&gt;</span> <span class="p">!</span><span class="n">t</span><span class="p">.</span><span class="n">IsAbstract</span><span class="p">)</span> <span class="c1">// We are not interested in abstract classes</span>
+</span><span class='line'>          <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span> <span class="p">=&gt;</span> <span class="n">t</span><span class="p">.</span><span class="n">GetCustomAttribute</span><span class="p">&lt;</span><span class="n">DataContractAttribute</span><span class="p">&gt;()</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">t</span> <span class="p">=&gt;</span> <span class="k">new</span> <span class="n">DtoType</span>
+</span><span class='line'>          <span class="p">{</span>
+</span><span class='line'>              <span class="n">Name</span> <span class="p">=</span> <span class="n">t</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span>
+</span><span class='line'>              <span class="c1">// struct =&gt; interface</span>
+</span><span class='line'>              <span class="c1">// class =&gt; class</span>
+</span><span class='line'>              <span class="c1">// enum =&gt; enum. Must check for enum first because it is a ValueType and we want to avoid enums to be generaed as interfaces</span>
+</span><span class='line'>              <span class="n">Kind</span> <span class="p">=</span> <span class="n">t</span><span class="p">.</span><span class="n">IsEnum</span>
+</span><span class='line'>                      <span class="p">?</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Enum</span>
+</span><span class='line'>                      <span class="p">:</span> <span class="n">t</span><span class="p">.</span><span class="n">IsValueType</span>
+</span><span class='line'>                          <span class="p">?</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Interface</span>
+</span><span class='line'>                          <span class="p">:</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Class</span><span class="p">,</span>
+</span><span class='line'>              <span class="n">Members</span> <span class="p">=</span> <span class="n">t</span><span class="p">.</span><span class="n">IsEnum</span> <span class="c1">// For enum types we should get its values except the &quot;value__&quot; field</span>
+</span><span class='line'>                  <span class="p">?</span> <span class="n">t</span><span class="p">.</span><span class="n">GetFields</span><span class="p">()</span>
+</span><span class='line'>                      <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">f</span> <span class="p">=&gt;</span> <span class="n">f</span><span class="p">.</span><span class="n">GetCustomAttribute</span><span class="p">&lt;</span><span class="n">DataMemberAttribute</span><span class="p">&gt;()</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;&amp;</span> <span class="n">f</span><span class="p">.</span><span class="n">Name</span> <span class="p">!=</span> <span class="s">&quot;value__&quot;</span><span class="p">)</span>
+</span><span class='line'>                      <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">f</span> <span class="p">=&gt;</span> <span class="k">new</span> <span class="n">DtoMember</span>
+</span><span class='line'>                      <span class="p">{</span>
+</span><span class='line'>                          <span class="n">Name</span> <span class="p">=</span> <span class="n">f</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span>
+</span><span class='line'>                          <span class="n">Type</span> <span class="p">=</span> <span class="n">f</span><span class="p">.</span><span class="n">FieldType</span>
+</span><span class='line'>                      <span class="p">})</span>
+</span><span class='line'>                  <span class="p">:</span> <span class="n">t</span><span class="p">.</span><span class="n">GetProperties</span><span class="p">(</span><span class="n">BindingFlags</span><span class="p">.</span><span class="n">Public</span> <span class="p">|</span> <span class="n">BindingFlags</span><span class="p">.</span><span class="n">Instance</span><span class="p">)</span>
+</span><span class='line'>                      <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">p</span> <span class="p">=&gt;</span> <span class="n">p</span><span class="p">.</span><span class="n">GetCustomAttribute</span><span class="p">&lt;</span><span class="n">DataMemberAttribute</span><span class="p">&gt;()</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>                      <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">p</span> <span class="p">=&gt;</span> <span class="k">new</span> <span class="n">DtoMember</span>
+</span><span class='line'>                      <span class="p">{</span>
+</span><span class='line'>                          <span class="n">Name</span> <span class="p">=</span> <span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span>
+</span><span class='line'>                          <span class="n">Type</span> <span class="p">=</span> <span class="n">p</span><span class="p">.</span><span class="n">PropertyType</span>
+</span><span class='line'>                      <span class="p">})</span>
+</span><span class='line'>          <span class="p">})</span>
+</span><span class='line'>          <span class="p">.</span><span class="n">ToArray</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To be able to parameterize and run codegeneration on every build I&#8217;m using preprocessed T4 templates (for more information on topic please refer to the Oleg Sych&#8217;s <a href="http://www.olegsych.com/2009/09/t4-preprocessed-text-templates/">Understanding T4: Preprocessed Text Templates</a> blog post). Preprocessed template generates a partial class that I&#8217;ll be able to extend with metadata I need:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">internal</span> <span class="k">partial</span> <span class="k">class</span> <span class="nc">TypesGenerator</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="n">DtoType</span><span class="p">[]</span> <span class="n">DtoTypes</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">private</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">DtoType</span><span class="p">&gt;</span> <span class="n">Interfaces</span> <span class="p">{</span> <span class="k">get</span> <span class="p">{</span> <span class="k">return</span> <span class="n">DtoTypes</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span> <span class="p">=&gt;</span> <span class="n">t</span><span class="p">.</span><span class="n">Kind</span> <span class="p">==</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Class</span> <span class="p">||</span> <span class="n">t</span><span class="p">.</span><span class="n">Kind</span> <span class="p">==</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Interface</span><span class="p">);</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">private</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">DtoType</span><span class="p">&gt;</span> <span class="n">Enums</span> <span class="p">{</span> <span class="k">get</span> <span class="p">{</span> <span class="k">return</span> <span class="n">DtoTypes</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span> <span class="p">=&gt;</span> <span class="n">t</span><span class="p">.</span><span class="n">Kind</span> <span class="p">==</span> <span class="n">DtoTypeKind</span><span class="p">.</span><span class="n">Enum</span><span class="p">);</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the actual template. It also contains a helper method that translates .NET types to the corresponding TypeScript type names.</p>
+
+<figure class='code'><figcaption><span>T4 Template - TypesGenerator.tt </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="p">&lt;</span><span class="err">#@</span> <span class="n">template</span> <span class="n">language</span><span class="p">=</span><span class="s">&quot;C#&quot;</span> <span class="n">visibility</span><span class="p">=</span><span class="s">&quot;internal&quot;</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#@</span> <span class="n">assembly</span> <span class="n">name</span><span class="p">=</span><span class="s">&quot;System.Core&quot;</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#@</span> <span class="n">import</span> <span class="n">namespace</span><span class="p">=</span><span class="s">&quot;System.Collections.Generic&quot;</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="c1">//------------------------------------------------------------------------------</span>
+</span><span class='line'><span class="c1">// &lt;auto-generated&gt;</span>
+</span><span class='line'><span class="c1">//     This code was generated by a tool.</span>
+</span><span class='line'><span class="c1">//     Runtime Version: &lt;#= Environment.Version #&gt;</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">//     Changes to this file may cause incorrect behavior and will be lost if</span>
+</span><span class='line'><span class="c1">//     the code is regenerated.</span>
+</span><span class='line'><span class="c1">// &lt;/auto-generated&gt;</span>
+</span><span class='line'><span class="c1">//------------------------------------------------------------------------------</span>
+</span><span class='line'>
+</span><span class='line'><span class="s">&quot;use strict&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Interfaces</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#</span> <span class="k">foreach</span><span class="p">(</span><span class="kt">var</span> <span class="n">@interface</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="n">Interfaces</span><span class="p">)</span> <span class="p">{</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">export</span> <span class="k">interface</span> <span class="p">&lt;</span><span class="err">#</span><span class="p">=</span> <span class="n">@interface</span><span class="p">.</span><span class="n">Name</span> <span class="err">#</span><span class="p">&gt;</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#</span>    <span class="k">foreach</span><span class="p">(</span><span class="kt">var</span> <span class="n">member</span> <span class="k">in</span> <span class="n">@interface</span><span class="p">.</span><span class="n">Members</span><span class="p">)</span> <span class="p">{</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'>  <span class="p">&lt;</span><span class="err">#</span><span class="p">=</span> <span class="n">member</span><span class="p">.</span><span class="n">Name</span><span class="err">#</span><span class="p">&gt;?:</span> <span class="p">&lt;</span><span class="err">#</span><span class="p">=</span> <span class="n">GetTypeScriptFieldTypeName</span><span class="p">(</span><span class="n">member</span><span class="p">.</span><span class="n">Type</span><span class="p">)</span> <span class="err">#</span><span class="p">&gt;;</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#</span>    <span class="p">}</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#</span> <span class="p">}</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Enums</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#</span> <span class="k">foreach</span><span class="p">(</span><span class="kt">var</span> <span class="n">@enum</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="n">Enums</span><span class="p">)</span> <span class="p">{</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">export</span> <span class="k">enum</span> <span class="p">&lt;</span><span class="err">#</span><span class="p">=</span> <span class="n">@enum</span><span class="p">.</span><span class="n">Name</span> <span class="err">#</span><span class="p">&gt;</span> <span class="p">{</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#</span>    <span class="k">foreach</span><span class="p">(</span><span class="kt">var</span> <span class="n">member</span> <span class="k">in</span> <span class="n">@enum</span><span class="p">.</span><span class="n">Members</span><span class="p">)</span> <span class="p">{</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'>  <span class="p">&lt;</span><span class="err">#</span><span class="p">=</span> <span class="n">member</span><span class="p">.</span><span class="n">Name</span> <span class="err">#</span><span class="p">&gt;</span> <span class="p">=</span> <span class="p">&lt;</span><span class="err">#</span><span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">Enum</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">member</span><span class="p">.</span><span class="n">Type</span><span class="p">,</span> <span class="n">member</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span> <span class="err">#</span><span class="p">&gt;,</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#</span>    <span class="p">}</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#</span> <span class="p">}</span> <span class="err">#</span><span class="p">&gt;</span>
+</span><span class='line'><span class="p">&lt;</span><span class="err">#</span><span class="p">+</span>
+</span><span class='line'>  <span class="c1">/// &lt;summary&gt;</span>
+</span><span class='line'>  <span class="c1">/// Returns a corresponding TypeScript type for a given .NET type</span>
+</span><span class='line'>  <span class="c1">/// &lt;/summary&gt;</span>
+</span><span class='line'>  <span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">GetTypeScriptFieldTypeName</span><span class="p">(</span><span class="n">Type</span> <span class="n">type</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="kt">var</span> <span class="n">numberTypes</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="p">&lt;</span><span class="n">Type</span><span class="p">&gt;</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>          <span class="k">typeof</span><span class="p">(</span><span class="kt">sbyte</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">byte</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">short</span><span class="p">),</span>
+</span><span class='line'>          <span class="k">typeof</span><span class="p">(</span><span class="kt">ushort</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">uint</span><span class="p">),</span>
+</span><span class='line'>          <span class="k">typeof</span><span class="p">(</span><span class="kt">long</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">ulong</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span>
+</span><span class='line'>          <span class="k">typeof</span><span class="p">(</span><span class="kt">double</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">decimal</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">};</span>
+</span><span class='line'>      <span class="kt">var</span> <span class="n">stringTypes</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="p">&lt;</span><span class="n">Type</span><span class="p">&gt;</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>          <span class="k">typeof</span><span class="p">(</span><span class="kt">char</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">string</span><span class="p">),</span> <span class="k">typeof</span><span class="p">(</span><span class="n">Guid</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kt">var</span> <span class="n">result</span> <span class="p">=</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="kt">var</span> <span class="n">isCollectionType</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>      <span class="c1">// Check if it is a generic. We support only generics which are compatible with IEnumerable&lt;T&gt; and have only one generic argument</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">type</span><span class="p">.</span><span class="n">IsGenericType</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(!</span><span class="k">typeof</span><span class="p">(</span><span class="n">IEnumerable</span><span class="p">&lt;</span><span class="kt">object</span><span class="p">&gt;).</span><span class="n">IsAssignableFrom</span><span class="p">(</span><span class="n">type</span><span class="p">)</span> <span class="p">&amp;&amp;</span> <span class="n">type</span><span class="p">.</span><span class="n">GetGenericArguments</span><span class="p">().</span><span class="n">Length</span> <span class="p">&gt;</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">&quot;The generic type {0} must implement IEnumerable&lt;T&gt; and must have no more than 1 generic argument.&quot;</span><span class="p">,</span> <span class="n">type</span><span class="p">.</span><span class="n">FullName</span><span class="p">));</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="c1">// strip the generic type leaving the first generic argument</span>
+</span><span class='line'>          <span class="n">type</span> <span class="p">=</span> <span class="n">type</span><span class="p">.</span><span class="n">GetGenericArguments</span><span class="p">()[</span><span class="m">0</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">isCollectionType</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Check if it is a primitive type</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">numberTypes</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">type</span><span class="p">))</span> <span class="n">result</span> <span class="p">=</span> <span class="s">&quot;number&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">stringTypes</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">type</span><span class="p">))</span> <span class="n">result</span> <span class="p">=</span> <span class="s">&quot;string&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">type</span> <span class="p">==</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">bool</span><span class="p">))</span> <span class="n">result</span> <span class="p">=</span> <span class="s">&quot;boolean&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="c1">// It is enum/class/struct -&gt; return its name as-is</span>
+</span><span class='line'>      <span class="k">else</span> <span class="n">result</span> <span class="p">=</span> <span class="n">type</span><span class="p">.</span><span class="n">Name</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">isCollectionType</span><span class="p">)</span> <span class="n">result</span> <span class="p">+=</span> <span class="s">&quot;[]&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="err">#</span><span class="p">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the usage is very simple. I&#8217;ve created a console application which could be launched for example on CI server during the build.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">Length</span> <span class="p">==</span> <span class="m">0</span> <span class="p">||</span> <span class="n">args</span><span class="p">[</span><span class="m">0</span><span class="p">].</span><span class="n">IndexOfAny</span><span class="p">(</span><span class="n">Path</span><span class="p">.</span><span class="n">GetInvalidPathChars</span><span class="p">())</span> <span class="p">&gt;=</span> <span class="m">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentException</span><span class="p">(</span><span class="s">&quot;Invalid argument. First argument should be a valid file path.&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">fileName</span> <span class="p">=</span> <span class="n">args</span><span class="p">[</span><span class="m">0</span><span class="p">];</span>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">typesMetadata</span> <span class="p">=</span> <span class="n">MetadataHelper</span><span class="p">.</span><span class="n">GetDtoTypesMetadata</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">Todo</span><span class="p">).</span><span class="n">Assembly</span><span class="p">.</span><span class="n">ExportedTypes</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">typesGenerator</span> <span class="p">=</span> <span class="k">new</span> <span class="n">TypesGenerator</span> <span class="p">{</span> <span class="n">DtoTypes</span> <span class="p">=</span> <span class="n">typesMetadata</span> <span class="p">};</span>
+</span><span class='line'>  <span class="n">File</span><span class="p">.</span><span class="n">WriteAllText</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">typesGenerator</span><span class="p">.</span><span class="n">TransformText</span><span class="p">().</span><span class="n">Trim</span><span class="p">());</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>As you can see with a very little effort I&#8217;ve got a working and open to any customizations codegenerator. As always the code from this post is available on <a href="https://github.com/manekovskiy/webapi-typescript-proxy-generator">Github</a>. Feel free to clone and adjust to your needs.</p>
+
+<p>Keep the code simple!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Alexander Manekovskiy</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-10-08T11:05:00-07:00" pubdate data-updated="true">Oct 8<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/development/'>Development</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://amanek.com/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/" data-via="amanekdev" data-counturl="http://amanek.com/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/how-ive-fixed-my-dell-inspiron-overheating-issues/" title="Previous Post: How I've Fixed My Dell Inspiron Overheating Issues">&laquo; How I've Fixed My Dell Inspiron Overheating Issues</a>
+      
+      
+        <a class="basic-alignment right" href="/why-your-team-should-do-a-code-review-on-a-regular-basis/" title="Next Post: Why Your Team Should Do a Code Review on a Regular Basis">Why Your Team Should Do a Code Review on a Regular Basis &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/better-command-line-experience-on-windows-with-conemu-clink-and-oh-my-posh/">Better Command Line Experience on Windows With ConEmu, Clink and Oh My Posh</a>
+      </li>
+    
+      <li class="post">
+        <a href="/why-your-team-should-do-a-code-review-on-a-regular-basis/">Why Your Team Should Do a Code Review on a Regular Basis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/">Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-ive-fixed-my-dell-inspiron-overheating-issues/">How I've Fixed My Dell Inspiron Overheating Issues</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to-configure-comemu-task-for-github-for-windows-portable-git/">How to Configure ComEmu Task for GitHub for Windows Portable Git</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/manekovskiy">@manekovskiy</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'manekovskiy',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("amanekdev", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/amanekdev" class="twitter-follow-button" data-show-count="false">Follow @amanekdev</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2021 - Alexander Manekovskiy -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'amanek';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://amanek.com/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/';
+        var disqus_url = 'http://amanek.com/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

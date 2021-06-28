@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Why Your Team Should Do a Code Review on a Regular Basis - Alexander Manekovskiy</title>
+  <meta name="author" content="Alexander Manekovskiy">
+
+  
+  <meta name="description" content="While working with any system we have to take into account so many aspects that even armed with the best tooling and extensive test suites we cannot &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://amanek.com/why-your-team-should-do-a-code-review-on-a-regular-basis/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/feed/" rel="alternate" title="Alexander Manekovskiy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28104381-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Alexander Manekovskiy</a></h1>
+  
+    <h2>Automating Automation</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/feed/" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:amanek.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Why Your Team Should Do a Code Review on a Regular Basis</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-10-21T19:38:00-07:00" pubdate data-updated="true">Oct 21<span>st</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>While working with any system we have to take into account so many aspects that even armed with the best tooling and extensive test suites we cannot guarantee 100% (but surely we can plan and minimize the risks) that the development/maintenance cost of our software will not exceed the amount of profit it generates.</p>
+
+<p>And to minimize the risks and costs we have to follow the best practices, methodologies and techniques. My personal approach to aforementioned good practices is very pragmatic - if something proved that it could be used to simplify the life of the team we&#8217;ll use it. And one of that things that are often underestimated or neglected is a code (or peer) review.</p>
+
+<blockquote><p>In software development, peer review is a type of software review in which a work product (document, code, or other) is examined by its author and one or more colleagues, in order to evaluate its technical content and quality.</p>
+
+<p><strong>From Wikipedia, the free encyclopedia.</strong></p></blockquote>
+
+<h2>What Are The Benefits Of Doing A Code Review?</h2>
+
+<p>The main intent of the code review is to identify source code defects and quality issues. Another big advantage is a knowledge transfer. This is maybe the least expected outcome of the code review process. I personally observed lots of cases when reviewers were giving links and citing some external resources in their comments. That additional resources were helping author to get deeper into details, see the issue from different angles and as a result produce better code.</p>
+
+<p>For those who like numbers I recommend to read a study by Bacchelli A. and Bird C. <a href="http://sback.it/publications/icse2013.pdf">Expectations, outcomes, and challenges of modern code review</a> that characterizes the motivations of developers and managers for code review and compares it with actual results.</p>
+
+<p>Also Steve McConnell gives enough facts of code review effectiveness in <a href="http://www.amazon.com/gp/product/0735619670/ref=as_li_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=0735619670&amp;linkCode=as2&amp;tag=manekblog-20&amp;linkId=63IP6PEWIO325YEU">Code Complete</a>:</p>
+
+<blockquote style="font-style: normal">
+    <p style="margin-left: -1em; margin-bottom: 0.5em;">Technical reviews have been studied much longer than pair programming, and their results, as described in case studies and elsewhere, have been impressive:</p>
+    <ul>
+        <li>IBM found that each hour of inspection prevented about 100 hours of related work (testing and defect correction) (Holland 1999).</li>
+        <li>Raytheon reduced its cost of defect correction (rework) from about 40 percent of total project cost to about 20 percent through an initiative that focused on inspections (Haley 1996).</li>
+        <li>Hewlett-Packard reported that its inspection program saved an estimated $21.5 million per year (Grady and Van Slack 1994).</li>
+        <li>Imperial Chemical Industries found that the cost of maintaining a portfolio of about 400 programs was only about 10 percent as high as the cost of maintaining a similar set of programs that had not been inspected (Gilb and Graham 1993).</li>
+        <li>A study of large programs found that each hour spent on inspections avoided an average of 33 hours of maintenance work and that inspections were up to 20 times more efficient than testing (Russell 1991).</li>
+        <li>In a software-maintenance organization, 55 percent of one-line maintenance changes were in error before code reviews were introduced. After reviews were introduced, only 2 percent of the changes were in error (Freedman and Weinberg 1990). When all changes were considered, 95 percent were correct the first time after reviews were introduced. Before reviews were introduced, under 20 percent were correct the first time.</li>
+        <li>A group of 11 programs were developed by the same group of people, and all were released to production. The first five were developed without reviews and averaged 4.5 errors per 100 lines of code. The other six were inspected and averaged only 0.82 errors per 100 lines of code. Reviews cut the errors by over 80 percent (Freedman and Weinberg 1990).</li>
+        <li>Capers Jones reports that of all the software projects he has studied that have achieved 99 percent defect-removal rates or better, all have used formal inspections. Also, none of the projects that achieved less than 75 percent defectremoval efficiency used formal inspections (Jones 2000).</li>
+    </ul>
+</blockquote>
+
+
+<h2>How It Is Working?</h2>
+
+<p>The typical code review process is following:</p>
+
+<p><img class="center" src="/images/posts/code-review-process.png" title="'Diagram showing the typical code review flow'" ></p>
+
+<ol>
+<li>Author of change generates a patch and sends it to the code review system</li>
+<li>Author invites his teammates to review the code</li>
+<li>Code review participants are adding comments and suggestions on code improvement</li>
+<li>Author either follows the suggestions and updates the code or rejects them</li>
+<li>The code review is updated by author and a new review iteration is started</li>
+<li>When all debates around the change are finished the code review is approved and the change is merged into the repository.</li>
+</ol>
+
+
+<h2>Where To Start?</h2>
+
+<p>Code review is often supported by tools preferably integrated into the development environment. If you are working alone there is a site where you can ask for a peer programmer code review - <a href="http://codereview.stackexchange.com/">Code Review</a>. As like on a Stack Overflow this site has an army of active members that would happily help you no matter what language or technology you are using.</p>
+
+<p>There are also a plenty of tools available on a market starting from aforementioned SO site to <a href="https://www.visualstudio.com/en-us/get-started/code/get-code-reviewed-vs" title="Get your code reviewed with Visual Studio">TFS support</a> and integrated code review tooling inside <a href="https://github.com/features#code-review" title="Collaborative code review on GitHub">GitHub</a>, <a href="https://about.gitlab.com/features/" title="GitLab features">GitLab</a>, <a href="https://bitbucket.org/product/features" title="Bitbucket features">Bitbucket</a> and other OSS collaboration platforms.</p>
+
+<h2>Conclusions</h2>
+
+<p>If you are looking for how you can improve the state of the codebase and/or development process in general start practicing code review on daily basis.</p>
+
+<p>Surely if the team never practiced code review before it would be harder to start but as Laozi said “The journey of a thousand miles begins with one step”. And I wish you to succeed!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Alexander Manekovskiy</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-10-21T19:38:00-07:00" pubdate data-updated="true">Oct 21<span>st</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/development/'>Development</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://amanek.com/why-your-team-should-do-a-code-review-on-a-regular-basis/" data-via="amanekdev" data-counturl="http://amanek.com/why-your-team-should-do-a-code-review-on-a-regular-basis/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/" title="Previous Post: Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates">&laquo; Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates</a>
+      
+      
+        <a class="basic-alignment right" href="/better-command-line-experience-on-windows-with-conemu-clink-and-oh-my-posh/" title="Next Post: Better Command Line Experience on Windows With ConEmu, Clink and Oh My Posh">Better Command Line Experience on Windows With ConEmu, Clink and Oh My Posh &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/better-command-line-experience-on-windows-with-conemu-clink-and-oh-my-posh/">Better Command Line Experience on Windows With ConEmu, Clink and Oh My Posh</a>
+      </li>
+    
+      <li class="post">
+        <a href="/why-your-team-should-do-a-code-review-on-a-regular-basis/">Why Your Team Should Do a Code Review on a Regular Basis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/">Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-ive-fixed-my-dell-inspiron-overheating-issues/">How I've Fixed My Dell Inspiron Overheating Issues</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to-configure-comemu-task-for-github-for-windows-portable-git/">How to Configure ComEmu Task for GitHub for Windows Portable Git</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/manekovskiy">@manekovskiy</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'manekovskiy',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("amanekdev", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/amanekdev" class="twitter-follow-button" data-show-count="false">Follow @amanekdev</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2021 - Alexander Manekovskiy -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'amanek';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://amanek.com/why-your-team-should-do-a-code-review-on-a-regular-basis/';
+        var disqus_url = 'http://amanek.com/why-your-team-should-do-a-code-review-on-a-regular-basis/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

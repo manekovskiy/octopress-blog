@@ -1,0 +1,357 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How I've Fixed My Dell Inspiron Overheating Issues - Alexander Manekovskiy</title>
+  <meta name="author" content="Alexander Manekovskiy">
+
+  
+  <meta name="description" content="Last summer I started experiencing issues when working on CPU bound tasks on my laptop. At first I thought that the main cause was the summer heat - &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://amanek.com/how-ive-fixed-my-dell-inspiron-overheating-issues/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/feed/" rel="alternate" title="Alexander Manekovskiy" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28104381-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Alexander Manekovskiy</a></h1>
+  
+    <h2>Automating Automation</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/feed/" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:amanek.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How I've Fixed My Dell Inspiron Overheating Issues</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-14T19:37:00-07:00" pubdate data-updated="true">Mar 14<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Last summer I started experiencing issues when working on CPU bound tasks on my laptop. At first I thought that the main cause was the summer heat - it was 30&deg;C (86&deg;F) at the time when I first noticed my laptop automatically shut down because of overheating. But then when temperature went down and occasional shutdowns didn&#8217;t stopped I understood that I have a real problem.</p>
+
+<p><img class="right" src="/images/posts/dell-inpiron-n5110.jpg" title="Dell Inspiron N5110" alt="Dell Inspiron N5110">
+I own Dell Inspiron N5110 which has Intel Core i7-2670QM CPU and NVidia GeForce GT 525M dedicated GPU. Browsing over the Internet showed that I&#8217;m not the only one with such issue. But there was no consistent/believable explanation/guide of why laptop started overheating and how to fix it. One part of the community was just blaming Dell&#8217;s greediness and/or cooling system which was not designed for such powerful CPU as i7 and another was suggesting to replace the thermal grease and through the power management controls decrease max speed of the CPU. I already knew how to disassemble my laptop (previously I had to replace my stock HDD which is not fast or easy operation when you own a Dell laptop) so I&#8217;ve decided to replace the thermal grease first and then try to understand and maybe even fix engineering blunders in cooling system.</p>
+
+<blockquote><p>Running ahead of the story I want to say that I&#8217;ve successfully accomplished both tasks and reduced overall temperature of my CPU by 20&deg;C (68&deg;F) resulting in stable 50&deg;C (122&deg;F) when idle and 85-90&deg;C (185-194&deg;F) under continuous 100% load.</p></blockquote>
+
+<h2>Step 1: Clean the dust and replace the thermal grease</h2>
+
+<p>The things you&#8217;ll need:</p>
+
+<ul>
+<li>The thermal grease. For those who is interested I was using <a href="http://bit.ly/1FPIiVf">Zalman ZM-STG2</a>.</li>
+<li>The <a href="http://bit.ly/1dVPdvO">Dell Inspiron N5110 Service Manual</a>. This is a &#8220;must&#8221; if you never saw the &#8220;innards&#8221; of your laptop. You&#8217;ll have to follow the steps from &#8220;Removing the Thermal-Cooling Assembly&#8221; section (see page 75). Friendly tip: print pages with necessary steps as it is hard to remember everything when disassembling laptop for the first time. <br />
+I&#8217;m sure that there are also plenty of video guides showing how to do this, but being a bit of old school I prefer reading over watching so I cannot recommend any video guide.</li>
+</ul>
+
+
+<p>It turned out that stock thermal grease became rock solid and was no longer able to do its work. I used a 70% isopropyl alcohol to remove it.</p>
+
+<p><img class="center" src="/images/posts/rock-solid-stock-thermal-grease.jpg" title="Rock solid thermal grease on CPU and GPU" alt="Rock solid thermal grease on CPU and GPU"></p>
+
+<p>The fan was also full of dirt. The sad fact is that you cannot open fan case without removing the whole cooling system. This means that every time you want to clean it from dirt and dust you&#8217;ll have to replace the thermal grease.</p>
+
+<p><img class="center" src="/images/posts/dirt-in-fan.jpg" title="Dirt inside cooling fan" alt="Dirt inside cooling fan"></p>
+
+<p>So after I&#8217;ve replaced the thermal grease and cleaned the fan the CPU temperature decreased by around 15&deg;C (59&deg;F). That was a big win.</p>
+
+<h2>Step 2: Fix the airflow inside the cooling system</h2>
+
+<p>After two weeks I decided to try to make air flow inside the laptop more streamlined. First thing I did - closed the hole in motherboard with a piece of thick paper. The idea was to minimize the amount of hot air going under my keyboard which sometimes was making it too hot to work with it normally.</p>
+
+<p><img class="center" src="/images/posts/fan-hole-in-motherboard.jpg" title="Dell Inspiron N5110" alt="Dell Inspiron N5110"></p>
+
+<p>Secondly I decided to fix the air intake. From my point of view it has two issues:</p>
+
+<ol>
+<li>For some reason a piece of plastic was covering the 25% of the air intake grid. So I&#8217;ve just cut it away with the paper knife.</li>
+</ol>
+
+
+<p><img class="center" src="/images/posts/plastic-cover-over-air-intake.jpg" title="Plastic cover over air intake" alt="Plastic cover over air intake">
+<img class="center" src="/images/posts/plastic-cover-over-air-intake-removed.jpg" title="Plastic cover over air intake removed" alt="Plastic cover over air intake removed">
+2. There was a gap of 7mm (~0.25&quot;) between the motherboard and the grid so I&#8217;ve made a compactor from the little piece of linoleum. I&#8217;m sure something thick enough like a piece of foam rubber would also work as the idea is to streamline the air intake and do not allow the hot air from the laptop to be taken again.</p>
+
+<p><img class="center" src="/images/posts/linoleum-compactor.jpg" title="ll be used as a compactor" alt="A piece of linoleum that"></p>
+
+<p>I just glued the pieces of linoleum to the laptop case and made something that looks like a well.</p>
+
+<p><img class="center" src="/images/posts/linoleum-compactor-applied.jpg" title="Linoleum compactor applied" alt="Linoleum compactor applied"></p>
+
+<p>This gave me a little improvement of around 4-5&deg;C (41&deg;F). Not much but still better than nothing.</p>
+
+<h2>Conslusions</h2>
+
+<p>Replacement of the thermal grease and cleaning of the fan from dust is a must if you want to fix the overheating issues. Attempts to improve the air intake could also help to lower the temperature but not much.</p>
+
+<p>Anyways you will not lose anything from trying to make things better.</p>
+
+<p>Good luck!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Alexander Manekovskiy</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-14T19:37:00-07:00" pubdate data-updated="true">Mar 14<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/diy/'>DIY</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://amanek.com/how-ive-fixed-my-dell-inspiron-overheating-issues/" data-via="amanekdev" data-counturl="http://amanek.com/how-ive-fixed-my-dell-inspiron-overheating-issues/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/how-to-configure-comemu-task-for-github-for-windows-portable-git/" title="Previous Post: How to Configure ComEmu Task for GitHub for Windows Portable Git">&laquo; How to Configure ComEmu Task for GitHub for Windows Portable Git</a>
+      
+      
+        <a class="basic-alignment right" href="/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/" title="Next Post: Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates">Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/better-command-line-experience-on-windows-with-conemu-clink-and-oh-my-posh/">Better Command Line Experience on Windows With ConEmu, Clink and Oh My Posh</a>
+      </li>
+    
+      <li class="post">
+        <a href="/why-your-team-should-do-a-code-review-on-a-regular-basis/">Why Your Team Should Do a Code Review on a Regular Basis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/generate-typescript-interfaces-from-net-assemblies-using-t4-templates/">Generate TypeScript Interfaces From .NET Assemblies Using T4 Templates</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-ive-fixed-my-dell-inspiron-overheating-issues/">How I've Fixed My Dell Inspiron Overheating Issues</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to-configure-comemu-task-for-github-for-windows-portable-git/">How to Configure ComEmu Task for GitHub for Windows Portable Git</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/manekovskiy">@manekovskiy</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'manekovskiy',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("amanekdev", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/amanekdev" class="twitter-follow-button" data-show-count="false">Follow @amanekdev</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2021 - Alexander Manekovskiy -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'amanek';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://amanek.com/how-ive-fixed-my-dell-inspiron-overheating-issues/';
+        var disqus_url = 'http://amanek.com/how-ive-fixed-my-dell-inspiron-overheating-issues/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
