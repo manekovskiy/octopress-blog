@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Development | Alexander Manekovskyi]]></title>
   <link href="http://amanek.com/blog/categories/development/atom.xml" rel="self"/>
   <link href="http://amanek.com/"/>
-  <updated>2021-06-28T00:28:57-07:00</updated>
+  <updated>2021-06-28T19:39:03-07:00</updated>
   <id>http://amanek.com/</id>
   <author>
     <name><![CDATA[Alexander Manekovskiy]]></name>
@@ -33,12 +33,20 @@
 
 <p>At first, I was planning to give an overview of my current setup, but then the description grew, and now I have a detailed guide about how to improve the look and feel of the CMD.</p>
 
-<p>Table of contents:
- - <a href="">Set Command Aliases/Macros For CMD.exe In ConEmu</a>
- - <a href="">Integrate Clink</a>
-   - <a href="">Configure Clink Completions</a>
- - <a href="">Change The Prompt With Oh My Posh</a>
- - <a href="">Conclusions</a></p>
+<p>Table of contents:</p>
+
+<ul>
+<li><a href="">Set Command Aliases/Macros For CMD.exe In ConEmu</a></li>
+<li><a href="">Integrate Clink</a>
+
+<ul>
+<li><a href="">Configure Clink Completions</a></li>
+</ul>
+</li>
+<li><a href="">Change The Prompt With Oh My Posh</a></li>
+<li><a href="">Conclusions</a></li>
+</ul>
+
 
 <h2>Set Command Aliases/Macros For CMD.exe In ConEmu</h2>
 
