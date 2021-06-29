@@ -26,6 +26,7 @@ This is what my console looks like after all modifications:
 At first, I was planning to give an overview of my current setup, but then the description grew, and now I have a detailed guide about how to improve the look and feel of the CMD.
 
 Table of contents:
+
  - [Set Command Aliases/Macros For CMD.exe In ConEmu]()
  - [Integrate Clink]()
    - [Configure Clink Completions]()
